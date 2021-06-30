@@ -7,6 +7,7 @@ from waflib.extras.symwaf2ic import get_toplevel_path
 def depends(dep):
     dep('code-format')
     dep('hate')
+    dep('librma')
 
 
 def options(opt):
@@ -42,7 +43,7 @@ def build(bld):
         target       = 'nhtl_extoll',
         features     = 'cxx use',
         source       = bld.path.ant_glob('src/nhtl-extoll/*.cpp'),
-        use          = ['nhtl_extoll_inc', 'hate_inc'],
+        use          = ['rma2rc', 'rma2', 'nhtl_extoll_inc', 'hate_inc'],
         install_path = '${PREFIX}/lib',
     )
 
