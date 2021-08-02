@@ -35,6 +35,8 @@ def configure(conf):
 
 
 def build(bld):
+    bld.env.DLSvx_HARDWARE_AVAILABLE = "extoll" == os.environ.get("SLURM_JOB_PARTITION")
+
     bld(target          = 'nhtl_extoll_inc',
         export_includes = 'include'
     )
@@ -45,6 +47,16 @@ def build(bld):
         source       = bld.path.ant_glob('src/nhtl-extoll/*.cpp'),
         use          = ['rma2rc', 'rma2', 'nhtl_extoll_inc', 'hate_inc'],
         install_path = '${PREFIX}/lib',
+    )
+
+    bld(
+        target       = 'nhtl_extoll_hwtest',
+        features     = 'gtest cxx cxxprogram',
+        source       = bld.path.ant_glob('tests/hw/nhtl-extoll/test-*.cpp'),
+        use          = ['nhtl_extoll'],
+        uselib       = 'NHTL_EXTOLL',
+        test_main    = 'tests/common/src/main.cpp',
+        skip_run     = not bld.env.DLSvx_HARDWARE_AVAILABLE,
     )
 
     bld(

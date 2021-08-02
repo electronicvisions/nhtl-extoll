@@ -3,7 +3,9 @@
 Map<String, Object> pipelineOptions = [
 		projects: ["nhtl-extoll"],
 		container: [app: "dls-core"],
-		notificationChannel: "#dls-software"
+		moduleOptions: [modules: ["extoll"]],
+		notificationChannel: "#dls-software",
+		testSlurmResource: [partition: "extoll", wafer: 61]
 ]
 
 wafDefaultPipeline(pipelineOptions)
