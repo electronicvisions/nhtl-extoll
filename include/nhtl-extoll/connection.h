@@ -1,6 +1,7 @@
 #pragma once
 
 #include "nhtl-extoll/buffer.h"
+#include "nhtl-extoll/notification_poller.h"
 #include "rma2.h"
 
 namespace nhtl_extoll {
@@ -27,7 +28,7 @@ public:
 
 	/// Open a single connection to the remote node.
 	/// @throws ConnectionFailed if an error happens inside `librma2`
-	explicit Connection(RMA2_Nodeid);
+	explicit Connection(RMA2_Nodeid, bool rra);
 	/// This class is moveable as the underlying registered memory region is stable address-wise
 	Connection(Connection&&) = default;
 	/// This class is not copyable
@@ -48,15 +49,30 @@ private:
 	RMA2_Nodeid m_node;
 	/// A remote register file connection
 	Connection m_rra;
+	/// A remote memory access connection
+	Connection m_rma;
 
 public:
 	RMA2_Nodeid get_node() const;
+
 	RMA2_Port get_rra_port() const;
 	RMA2_Handle get_rra_handle() const;
 	RMA2_VPID get_rra_vpid() const;
 
-	/// The buffer for all responses
+	RMA2_Port get_rma_port() const;
+	RMA2_Handle get_rma_handle() const;
+	RMA2_VPID get_rma_vpid() const;
+
+	NotificationPoller poller;
+
+	/// The buffer for all rra responses
 	PhysicalBuffer buffer;
+	/// The ring buffer for rma traffic
+	RingBuffer ring_buffer;
+
+	/// A mostly superfluous ring buffer required for successful configuration
+	/// Remove when trace ring buffer is removed from FPGA
+	RingBuffer trace_ring_buffer;
 
 	/// Opens a connection to a remote node.
 	/// @throws ConnectionFailed if there is an error inside `librma2`

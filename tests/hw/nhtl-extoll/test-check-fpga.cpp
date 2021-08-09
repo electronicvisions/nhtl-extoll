@@ -4,6 +4,7 @@
 #include <boost/process.hpp>
 #include <gtest/gtest.h>
 
+#include "nhtl-extoll/configure_fpga.h"
 #include "nhtl-extoll/connection.h"
 #include "nhtl-extoll/register_file.h"
 #include "rma2.h"
@@ -44,7 +45,7 @@ std::vector<RMA2_Nodeid> get_node_ids()
 	return nodes;
 }
 
-TEST(TestReadWrite, CheckFPGA)
+TEST(TestExtollFPGA, CheckFPGA)
 {
 	std::vector<RMA2_Nodeid> node_ids = get_node_ids();
 	// Address and content of the register file identifying FPGAs.
@@ -56,6 +57,27 @@ TEST(TestReadWrite, CheckFPGA)
 		nhtl_extoll::RegisterFile rf{connection};
 		if (rf.read(fpga_address) == fpga_identifier) {
 			fpga_count++;
+		}
+	}
+	ASSERT_GE(fpga_count, 1);
+}
+
+TEST(TestExtollFPGA, ConfigureFPGA)
+{
+	std::vector<RMA2_Nodeid> node_ids = get_node_ids();
+	// Address and content of the register file identifying FPGAs.
+	RMA2_NLA fpga_address = 0x8000;
+	uint64_t fpga_identifier = 0xcafebabe;
+	int fpga_count = 0;
+	for (auto const& node_id : node_ids) {
+		nhtl_extoll::Endpoint connection{node_id};
+		nhtl_extoll::RegisterFile rf{connection};
+		if (rf.read(fpga_address) == fpga_identifier) {
+			fpga_count++;
+			nhtl_extoll::configure_fpga(connection);
+			ASSERT_EQ(
+			    rf.read<nhtl_extoll::HicannBufferStart>().data(),
+			    connection.ring_buffer.address(0));
 		}
 	}
 	ASSERT_GE(fpga_count, 1);

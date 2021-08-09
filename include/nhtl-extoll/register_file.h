@@ -54,12 +54,12 @@ public:
 	template <typename RF>
 	RF read() const
 	{
-		static_assert(RF::address >= 0, "register file address must be positive!");
-		static_assert(RF::address <= max_address, "register file address too large!");
+		static_assert(RF::rf_address >= 0, "register file address must be positive!");
+		static_assert(RF::rf_address <= max_address, "register file address too large!");
 		static_assert(RF::readable, "register file must be readable!");
 
 		RF rf;
-		rf.raw = read(RF::address);
+		rf.raw = read(RF::rf_address);
 		return rf;
 	}
 
@@ -74,11 +74,11 @@ public:
 	template <typename RF>
 	void write(RF&& rf)
 	{
-		static_assert(RF::address >= 0, "register file address must be positive!");
-		static_assert(RF::address <= max_address, "register file address too large!");
+		static_assert(RF::rf_address >= 0, "register file address must be positive!");
+		static_assert(RF::rf_address <= max_address, "register file address too large!");
 		static_assert(RF::writable, "register file must be writable!");
 
-		write(RF::address, rf.raw);
+		write(RF::rf_address, rf.raw);
 	}
 
 	/**

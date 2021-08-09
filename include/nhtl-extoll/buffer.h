@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "nhtl-extoll/notification_poller.h"
 #include "rma2.h"
 
 namespace nhtl_extoll {
@@ -47,4 +48,36 @@ public:
 	uint64_t& operator[](size_t position);
 };
 
+/**
+ *  A specialized memory region that acts like a ringbuffer.
+ *  This class is synchronized with the ringbuffer on the remote Fpga.
+ */
+class RingBuffer : public PhysicalBuffer
+{
+private:
+	size_t m_read_index = 0;
+	size_t m_readable_words = 0;
+	size_t m_read_words = 0;
+	RMA2_Handle m_handle = nullptr;
+	NotificationPoller& m_poller;
+
+	bool receive(bool throw_on_timeout);
+
+public:
+	/// Creates a ringbuffer from an Rma network port and handle, the number of pages and the
+	/// payload type to expect
+	RingBuffer(RMA2_Port port, RMA2_Handle handle, size_t pages, NotificationPoller&);
+	/// Frees all resources and does a last sync with the remote Fpga
+	~RingBuffer();
+
+	/// Blocks and reads one quad word from the buffer
+	uint64_t get();
+	/// Notifies the hardware about how many quad words were read.
+	/// This method is also called internally after a certain amount of read quad words
+	void notify();
+	/// Simulates reading all quad words in the buffer and discards the packets
+	void clear();
+	/// Does a hard reset without notifying the hardware.
+	void reset();
+};
 }

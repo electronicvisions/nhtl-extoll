@@ -41,12 +41,13 @@ Connection::~Connection()
 }
 
 
-Connection::Connection(RMA2_Nodeid node)
+Connection::Connection(RMA2_Nodeid node, bool rra)
 {
 	RMA2_ERROR status = rma2_open(&m_port);
 	throw_on_error<ConnectionFailed>(status, "Failed to open port!");
 	m_vpid = rma2_get_vpid(m_port);
-	status = rma2_connect(m_port, node, m_vpid, rra_connection, &m_handle);
+	status =
+	    rma2_connect(m_port, node, m_vpid, (rra ? rra_connection : RMA2_CONN_DEFAULT), &m_handle);
 	throw_on_error<ConnectionFailed>(status, "Failed to connect!");
 }
 
@@ -66,7 +67,15 @@ RMA2_VPID Connection::get_vpid() const
 }
 
 
-Endpoint::Endpoint(RMA2_Nodeid n) : m_node(n), m_rra(n), buffer(m_rra.get_port(), 1) {}
+Endpoint::Endpoint(RMA2_Nodeid n) :
+    m_node(n),
+    m_rra(n, true),
+    m_rma(n, false),
+    poller(get_rma_port()),
+    buffer(get_rra_port(), 1),
+    ring_buffer(get_rma_port(), get_rma_handle(), 100, poller),
+    trace_ring_buffer(get_rma_port(), get_rma_handle(), 1, poller)
+{}
 
 RMA2_Nodeid Endpoint::get_node() const
 {
@@ -86,6 +95,21 @@ RMA2_Handle Endpoint::get_rra_handle() const
 RMA2_VPID Endpoint::get_rra_vpid() const
 {
 	return m_rra.get_vpid();
+}
+
+RMA2_Port Endpoint::get_rma_port() const
+{
+	return m_rma.get_port();
+}
+
+RMA2_Handle Endpoint::get_rma_handle() const
+{
+	return m_rma.get_handle();
+}
+
+RMA2_VPID Endpoint::get_rma_vpid() const
+{
+	return m_rma.get_vpid();
 }
 
 } // namespace nhtl_extoll
