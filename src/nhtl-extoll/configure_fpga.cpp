@@ -46,7 +46,7 @@ void configure_fpga(Endpoint& connection)
 	    0,
 	    connection.get_rma_vpid(),
 	    0b100,
-	    connection.buffer.address(0),
+	    connection.buffer.address(),
 	    {ring_buffer.address(0), uint32_t(ring_buffer.size() * sizeof(uint64_t)), 0x7c0, false,
 	     0x100, uint32_t(ring_buffer.size() / 62 - 8)},
 	    {trace_ring_buffer.address(0), uint32_t(ring_buffer.size() * sizeof(uint64_t)), 0x7c0,

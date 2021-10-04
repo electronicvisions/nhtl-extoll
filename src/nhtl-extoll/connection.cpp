@@ -72,7 +72,7 @@ Endpoint::Endpoint(RMA2_Nodeid n) :
     m_rra(n, true),
     m_rma(n, false),
     poller(get_rma_port()),
-    buffer(get_rra_port(), 1),
+    buffer(),
     ring_buffer(get_rma_port(), get_rma_handle(), 100, poller),
     trace_ring_buffer(get_rma_port(), get_rma_handle(), 1, poller)
 {}

@@ -24,12 +24,13 @@ public:
 
 	/// RMA2_Connection_Options option for RRA connection.
 	static inline RMA2_Connection_Options const rra_connection =
-	    RMA2_Connection_Options(uint32_t(RMA2_CONN_DEFAULT) | uint32_t(RMA2_CONN_RRA));
+	    RMA2_Connection_Options(uint32_t(RMA2_CONN_PHYSICAL) | uint32_t(RMA2_CONN_RRA));
 
 	/// Open a single connection to the remote node.
 	/// @throws ConnectionFailed if an error happens inside `librma2`
 	explicit Connection(RMA2_Nodeid, bool rra);
-	/// This class is moveable as the underlying registered memory region is stable address-wise
+	/// This class is moveable as the underlying registered memory
+	/// region is stable address-wise
 	Connection(Connection&&) = default;
 	/// This class is not copyable
 	Connection(Connection const&) = delete;
@@ -39,9 +40,10 @@ public:
 	~Connection();
 };
 
-/// Encapsulates the various handles needed for the `librma2` to represent a connection.
-///
-/// Extoll keeps track of all Connections internally.
+/**
+ *  Encapsulates the various handles needed for the `librma2` to represent a connection.
+ *  Extoll keeps track of all Connections internally.
+ */
 struct Endpoint
 {
 private:
@@ -76,10 +78,9 @@ public:
 
 	/// Opens a connection to a remote node.
 	/// @throws ConnectionFailed if there is an error inside `librma2`
-	/// @throws FailedToWrite if the write test failed
-	/// @throws FailedToRead if the read test failed
 	explicit Endpoint(RMA2_Nodeid);
-	/// This class is moveable as the underlying registered memory region is stable address-wise
+	/// This class is moveable as the underlying registered memory
+	/// region is stable address-wise
 	Endpoint(Endpoint&&) = default;
 	/// This class is not copyable
 	Endpoint(Endpoint const&) = delete;
