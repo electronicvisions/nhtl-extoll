@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "nhtl-extoll/register_file.h"
+#include "nhtl-extoll/connection.h"
 #include "rma2.h"
 
 namespace nhtl_extoll {

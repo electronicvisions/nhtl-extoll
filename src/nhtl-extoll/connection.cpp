@@ -112,4 +112,35 @@ RMA2_VPID Endpoint::get_rma_vpid() const
 	return m_rma.get_vpid();
 }
 
+uint64_t Endpoint::rra_read(RMA2_NLA address) const
+{
+	RMA2_ERROR status = rma2_post_get_qw_direct(
+	    get_rra_port(), get_rra_handle(), buffer.address(), 8, address, RMA2_COMPLETER_NOTIFICATION,
+	    RMA2_CMD_DEFAULT);
+
+	throw_on_error<FailedToRead>(status, get_node(), address);
+
+	RMA2_Notification* notification;
+	status = rma2_noti_get_block(get_rra_port(), &notification);
+	throw_on_error<FailedToRead>(status, get_node(), address);
+	status = rma2_noti_free(get_rra_port(), notification);
+	throw_on_error<FailedToRead>(status, get_node(), address);
+
+	return buffer.read();
+}
+
+void Endpoint::rra_write(RMA2_NLA address, uint64_t value)
+{
+	RMA2_ERROR status = rma2_post_immediate_put(
+	    get_rra_port(), get_rra_handle(), 8, value, address, RMA2_COMPLETER_NOTIFICATION,
+	    RMA2_CMD_DEFAULT);
+	throw_on_error<FailedToWrite>(status, get_node(), address);
+
+	RMA2_Notification* notification;
+	status = rma2_noti_get_block(get_rra_port(), &notification);
+	throw_on_error<FailedToWrite>(status, get_node(), address);
+	status = rma2_noti_free(get_rra_port(), notification);
+	throw_on_error<FailedToWrite>(status, get_node(), address);
+}
+
 } // namespace nhtl_extoll

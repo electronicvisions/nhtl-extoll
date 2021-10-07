@@ -6,33 +6,34 @@ namespace nhtl_extoll {
 
 void configure_fpga(Endpoint& connection, PartnerHostConfiguration config)
 {
-	RegisterFile rf{connection};
-	rf.write<HostEndpoint>(
+	connection.rra_write<HostEndpoint>(
 	    {config.local_node, config.protection_domain_id, config.vpid, config.mode});
-	rf.write<ConfigResponse>({config.config_put_address});
+	connection.rra_write<ConfigResponse>({config.config_put_address});
 
-	rf.write<HicannBufferStart>({config.hicann.start_address});
-	rf.write<HicannBufferSize>({config.hicann.capacity});
-	rf.write<HicannBufferFullThreshold>({config.hicann.threshold});
-	rf.write<HicannNotificationBehaviour>({config.hicann.timeout, config.hicann.frequency});
+	connection.rra_write<HicannBufferStart>({config.hicann.start_address});
+	connection.rra_write<HicannBufferSize>({config.hicann.capacity});
+	connection.rra_write<HicannBufferFullThreshold>({config.hicann.threshold});
+	connection.rra_write<HicannNotificationBehaviour>(
+	    {config.hicann.timeout, config.hicann.frequency});
 	if (config.hicann.reset_counter) {
-		rf.write<HicannBufferCounterReset>({true});
+		connection.rra_write<HicannBufferCounterReset>({true});
 	}
 
 	// Start of trace buffer configuration
 	// Remove when trace ring buffer is removed from FPGA
-	rf.write<TraceBufferStart>({config.trace.start_address});
-	rf.write<TraceBufferSize>({config.trace.capacity});
-	rf.write<TraceBufferFullThreshold>({config.trace.threshold});
-	rf.write<TraceNotificationBehaviour>({config.trace.timeout, config.trace.frequency});
+	connection.rra_write<TraceBufferStart>({config.trace.start_address});
+	connection.rra_write<TraceBufferSize>({config.trace.capacity});
+	connection.rra_write<TraceBufferFullThreshold>({config.trace.threshold});
+	connection.rra_write<TraceNotificationBehaviour>(
+	    {config.trace.timeout, config.trace.frequency});
 	if (config.trace.reset_counter) {
-		rf.write<TraceBufferCounterReset>({true});
+		connection.rra_write<TraceBufferCounterReset>({true});
 	}
 
-	rf.write<TraceBufferInit>({true});
+	connection.rra_write<TraceBufferInit>({true});
 	// End of trace buffer configuration
 
-	rf.write<HicannBufferInit>({true});
+	connection.rra_write<HicannBufferInit>({true});
 	connection.ring_buffer.reset();
 }
 

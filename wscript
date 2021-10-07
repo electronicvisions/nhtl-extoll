@@ -60,15 +60,6 @@ def build(bld):
     )
 
     bld(
-        target       = 'nhtl_extoll_swtest',
-        features     = 'gtest cxx cxxprogram',
-        source       = bld.path.ant_glob('tests/sw/nhtl-extoll/test-*.cpp'),
-        use          = ['nhtl_extoll'],
-        uselib       = 'NHTL_EXTOLL',
-        test_main    = 'tests/common/src/main.cpp',
-    )
-
-    bld(
         features = 'doxygen',
         name = 'nhtl_extoll_documentation',
         doxyfile = bld.root.make_node(join(get_toplevel_path(), "code-format", "doxyfile")),

@@ -55,6 +55,12 @@ private:
 	Connection m_rma;
 
 public:
+	/**
+	 * Maximum RF address available. This is determined by the register file
+	 * and should be adjusted if the register file is changed.
+	 */
+	static inline uint64_t const max_address = 0x180d0;
+
 	RMA2_Nodeid get_node() const;
 
 	RMA2_Port get_rra_port() const;
@@ -86,6 +92,65 @@ public:
 	Endpoint(Endpoint const&) = delete;
 	/// This class is not copy-assignable
 	Endpoint& operator=(Endpoint const&) = delete;
+
+	/**
+	 *  Read the value of a register file.
+	 *
+	 *  Only read-write or read-only register files can be used with this method.
+	 *  @code
+	 *  auto reset = rf.read<Reset>();
+	 *  std::cout << reset.core() << std::endl;
+	 *  @endcode
+	 */
+	template <typename RF>
+	RF rra_read() const
+	{
+		static_assert(RF::rf_address >= 0, "register file address must be positive!");
+		static_assert(RF::rf_address <= max_address, "register file address too large!");
+		static_assert(RF::readable, "register file must be readable!");
+
+		RF rf;
+		rf.raw = rra_read(RF::rf_address);
+		return rf;
+	}
+
+	/**
+	 * Write the value of a register file.
+	 *
+	 *  Only read-write or write-only register files can be used with this method.
+	 *  @code
+	 *  rf.write<HicannNotificationBehaviour>({0x100, 0x100});
+	 *  @endcode
+	 */
+	template <typename RF>
+	void rra_write(RF&& rf)
+	{
+		static_assert(RF::rf_address >= 0, "register file address must be positive!");
+		static_assert(RF::rf_address <= max_address, "register file address too large!");
+		static_assert(RF::writable, "register file must be writable!");
+
+		rra_write(RF::rf_address, rf.raw);
+	}
+
+	/**
+	 *  A non-template version of the read method.
+	 *
+	 *  This method is untyped and neither checks whether the remote register file
+	 *  is readable nor does it unpack the bytes into the matching RF fields.
+	 *
+	 * Reading non-readable locations returns the data of the last readable
+	 * location accessed. In particular, it is possible for bitfields in
+	 * otherwise readable registers to be non readable and return garbage data.
+	 */
+	uint64_t rra_read(RMA2_NLA) const;
+
+	/**
+	 *  A non-template version of the write method.
+	 *
+	 *  This method is untyped and neither checks whether the remote register file
+	 *  is writable nor does it provide a way to pack the fields into a quad word.
+	 */
+	void rra_write(RMA2_NLA, uint64_t);
 };
 
 }
