@@ -75,11 +75,11 @@ public:
 
 	/// The buffer for all rra responses
 	PhysicalBuffer buffer;
-	/// The ring buffer for rma traffic
-	RingBuffer ring_buffer;
-
-	/// A mostly superfluous ring buffer required for successful configuration
-	/// Remove when trace ring buffer is removed from FPGA
+	/// The HICANN ring buffer
+	/// Currently not used but required for successful configuration
+	RingBuffer hicann_ring_buffer;
+	/// The trace data ring buffer
+	/// Currently used for all incoming RMA traffic
 	RingBuffer trace_ring_buffer;
 
 	/// Opens a connection to a remote node.

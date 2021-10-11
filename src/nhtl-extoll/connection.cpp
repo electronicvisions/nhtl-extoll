@@ -73,8 +73,8 @@ Endpoint::Endpoint(RMA2_Nodeid n) :
     m_rma(n, false),
     poller(get_rma_port()),
     buffer(),
-    ring_buffer(get_rma_port(), get_rma_handle(), 100, poller),
-    trace_ring_buffer(get_rma_port(), get_rma_handle(), 1, poller)
+    hicann_ring_buffer(get_rma_port(), get_rma_handle(), poller, 1),
+    trace_ring_buffer(get_rma_port(), get_rma_handle(), poller, 2048)
 {}
 
 RMA2_Nodeid Endpoint::get_node() const

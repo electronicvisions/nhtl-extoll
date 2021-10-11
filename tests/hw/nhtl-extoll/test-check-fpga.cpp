@@ -73,8 +73,8 @@ TEST(TestExtollFPGA, ConfigureFPGA)
 			fpga_count++;
 			nhtl_extoll::configure_fpga(connection);
 			ASSERT_EQ(
-			    connection.rra_read<nhtl_extoll::HicannBufferStart>().data(),
-			    connection.ring_buffer.address(0));
+			    connection.rra_read<nhtl_extoll::TraceBufferStart>().data(),
+			    connection.trace_ring_buffer.address(0));
 		}
 	}
 	ASSERT_GE(fpga_count, 1);

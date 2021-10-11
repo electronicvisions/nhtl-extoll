@@ -34,12 +34,13 @@ void configure_fpga(Endpoint& connection, PartnerHostConfiguration config)
 	// End of trace buffer configuration
 
 	connection.rra_write<HicannBufferInit>({true});
-	connection.ring_buffer.reset();
+	connection.hicann_ring_buffer.reset();
+	connection.trace_ring_buffer.reset();
 }
 
 void configure_fpga(Endpoint& connection)
 {
-	const auto& ring_buffer = connection.ring_buffer;
+	const auto& hicann_ring_buffer = connection.hicann_ring_buffer;
 	const auto& trace_ring_buffer = connection.trace_ring_buffer;
 
 	PartnerHostConfiguration config{
@@ -48,10 +49,10 @@ void configure_fpga(Endpoint& connection)
 	    connection.get_rma_vpid(),
 	    0b100,
 	    connection.buffer.address(),
-	    {ring_buffer.address(0), uint32_t(ring_buffer.size() * sizeof(uint64_t)), 0x7c0, false,
-	     0x100, uint32_t(ring_buffer.size() / 62 - 8)},
-	    {trace_ring_buffer.address(0), uint32_t(ring_buffer.size() * sizeof(uint64_t)), 0x7c0,
-	     false, 0x100, uint32_t(ring_buffer.size() / 62 - 8)}};
+	    {hicann_ring_buffer.address(0), static_cast<uint32_t>(hicann_ring_buffer.size_bt), 0x7c0,
+	     false, 0x100, static_cast<uint32_t>(hicann_ring_buffer.size_qw / 62 - 8)},
+	    {trace_ring_buffer.address(0), static_cast<uint32_t>(trace_ring_buffer.size_bt), 0x7c0,
+	     false, 0x100, static_cast<uint32_t>(trace_ring_buffer.size_qw / 62 - 8)}};
 
 	configure_fpga(connection, config);
 }

@@ -1,6 +1,8 @@
 #include "nhtl-extoll/buffer.h"
+
 #include "nhtl-extoll/exception.h"
 #include "nhtl-extoll/throw_on_error.h"
+
 #include <cassert>
 #include <cerrno>
 #include <chrono>
@@ -76,18 +78,21 @@ uint64_t PhysicalBuffer::read() const
 	return (*m_buffer)[0];
 }
 
-RingBuffer::RingBuffer(RMA2_Port port, RMA2_Handle handle, size_t pages, NotificationPoller& p) :
-    m_port(port), m_data(pages * page_size / sizeof(uint64_t)), m_handle(handle), m_poller(p)
+RingBuffer::RingBuffer(RMA2_Port port, RMA2_Handle handle, NotificationPoller& p, size_t pages) :
+    size_bt(pages * page_size),
+    size_qw(size_bt / sizeof(uint64_t)),
+    m_port(port),
+    m_handle(handle),
+    m_poller(p)
 {
-	if (pages == 0) {
-		throw std::runtime_error("Page number must be positive!");
-	}
-	if (sysconf(_SC_PAGESIZE) != 4096) {
+	if (sysconf(_SC_PAGESIZE) != page_size) {
 		throw std::runtime_error("System page size not 4096!");
 	}
 
-	RMA2_ERROR status =
-	    rma2_register(m_port, m_data.data(), m_data.size() * sizeof(uint64_t), &m_region);
+	m_address = std::aligned_alloc(page_size, size_bt);
+	m_buffer = static_cast<uint64_t*>(m_address);
+
+	RMA2_ERROR status = rma2_register(m_port, m_address, size_bt, &m_region);
 	throw_on_error<FailedToRegisterRegion>(status);
 }
 
@@ -101,6 +106,7 @@ RingBuffer::~RingBuffer()
 	notify();
 
 	rma2_unregister(m_port, m_region);
+	std::free(m_address);
 }
 
 RMA2_Region* RingBuffer::region() const
@@ -108,19 +114,14 @@ RMA2_Region* RingBuffer::region() const
 	return m_region;
 }
 
-uint64_t RingBuffer::operator[](size_t position) const
+uint64_t const& RingBuffer::operator[](size_t position) const
 {
-	return m_data[position];
+	return m_buffer[position];
 }
 
 uint64_t& RingBuffer::operator[](size_t position)
 {
-	return m_data[position];
-}
-
-size_t RingBuffer::size() const
-{
-	return m_data.size();
+	return m_buffer[position];
 }
 
 RMA2_NLA RingBuffer::address(size_t offset) const
@@ -132,33 +133,29 @@ RMA2_NLA RingBuffer::address(size_t offset) const
 
 uint64_t RingBuffer::get()
 {
-	while (m_readable_words == 0) {
+	if (m_readable_words == 0) {
 		receive(true);
 	}
-	m_read_index %= size();
-	uint64_t read = m_data[m_read_index++];
+
+	m_read_index %= size_qw;
+	uint64_t read = m_buffer[m_read_index++];
 	++m_read_words;
 	--m_readable_words;
 
 	if (m_read_words >= 10) {
 		notify();
 	}
+
 	return read;
 }
 
 void RingBuffer::notify()
 {
-	while (m_read_words > 0) {
-		auto words_to_notify = std::min(m_read_words, 0x1ffffffful);
-
-		// Identifier for the (hicann) ring buffer
-		uint64_t type = 10779;
-		uint64_t payload = (type << 48u) | words_to_notify;
-		rma2_post_notification(
-		    m_port, m_handle, 0, payload, RMA2_NO_NOTIFICATION, RMA2_CMD_DEFAULT);
-
-		m_read_words -= words_to_notify;
-	}
+	uint64_t payload = (trace_identifier << 48u) | m_read_words;
+	rma2_post_notification(
+	    m_port, m_handle, 0, payload, RMA2_COMPLETER_NOTIFICATION, RMA2_CMD_DEFAULT);
+	m_poller.consume_response(std::chrono::milliseconds(20));
+	m_read_words = 0;
 }
 
 bool RingBuffer::receive(bool throw_on_timeout)

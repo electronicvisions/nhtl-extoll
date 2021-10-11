@@ -45,7 +45,7 @@ void NotificationPoller::poll_notifications()
 		{
 			std::lock_guard<std::mutex> lock{m_mutex};
 			switch (cls) {
-				case 0xa1:
+				case 0xca:
 					m_packets += payload;
 					break;
 				case 0x0:

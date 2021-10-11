@@ -52,38 +52,22 @@ public:
  */
 class RingBuffer
 {
-private:
-	/// The network port
-	RMA2_Port m_port;
-	/// The user-space buffer
-	std::vector<uint64_t> m_data{};
-	/// The memory region registered with the driver
-	RMA2_Region* m_region;
-	/// Current read index
-	size_t m_read_index = 0;
-	/// Number of words in the buffer not yet read
-	size_t m_readable_words = 0;
-	/// Number of words read without notifying the FPGA
-	size_t m_read_words = 0;
-	/// Handle of the connection to the FPGA to notify
-	RMA2_Handle m_handle = nullptr;
-	/// Notification poller listening for ring buffer notifications
-	NotificationPoller& m_poller;
-
-	/// Checks with the poller if new words have arrived
-	/// May throw after a timeout if no new words have arrived
-	bool receive(bool throw_on_timeout);
-	/// Reads the buffer at a position
-	uint64_t operator[](size_t position) const;
-	/// Writes to the buffer at a position
-	uint64_t& operator[](size_t position);
-	/// Notifies the hardware about how many quad words were read
-	void notify();
-
 public:
-	/// Creates a ringbuffer from an Rma network port and handle, the
-	/// number of pages and the payload type to expect
-	RingBuffer(RMA2_Port port, RMA2_Handle handle, size_t pages, NotificationPoller&);
+	/// Page size according to RMA2 API reference manual, i.e., the
+	/// libRMA code seems not page-size-generic
+	static const int page_size = 4096;
+	/// Size of the ring buffer in bytes
+	const size_t size_bt;
+	/// Size of the ring buffer in quad words
+	const size_t size_qw;
+	/// Identifier for the hicann ring buffer
+	static const uint64_t hicann_identifier = 0x2a1b;
+	/// Identifier for the trace ring buffer
+	static const uint64_t trace_identifier = 0x0ca5;
+
+	/// Creates a ringbuffer from an RMA network port and handle,
+	/// an associated NotificationPoller, and the buffer size in pages
+	RingBuffer(RMA2_Port port, RMA2_Handle handle, NotificationPoller& p, size_t pages);
 	/// Frees all resources and does a last sync with the remote Fpga
 	~RingBuffer();
 	/// This class is moveable as the underlying registered memory
@@ -94,21 +78,44 @@ public:
 	/// This class is not copy-assignable
 	RingBuffer& operator=(RingBuffer const&) = delete;
 
-	/// Page size according to RMA2 API reference manual, i.e., the
-	/// libRMA code seems not page-size-generic
-	static const int page_size = 4096;
-
 	/// Blocks and reads one quad word from the buffer
 	uint64_t get();
-	/// Reads and discards quad words in the buffer
-	void clear();
 	/// Does a hard reset without notifying the hardware
 	void reset();
-	/// The size of the buffer in quad words
-	size_t size() const;
 	/// Accessor for the memory region
 	RMA2_Region* region() const;
 	/// The NLA of the mapped memory region with an optional offset in bytes
 	RMA2_NLA address(size_t offset) const;
+
+private:
+	/// The network port
+	RMA2_Port m_port;
+	/// Handle of the connection to the FPGA to notify
+	RMA2_Handle m_handle = nullptr;
+	/// Notification poller listening for ring buffer notifications
+	NotificationPoller& m_poller;
+	/// The address of the buffer
+	void* m_address;
+	/// The user-space buffer
+	uint64_t* m_buffer;
+	/// The memory region registered with the driver
+	RMA2_Region* m_region;
+	/// Current read index
+	size_t m_read_index = 0;
+	/// Number of words in the buffer not yet read
+	size_t m_readable_words = 0;
+	/// Number of words read without notifying the FPGA
+	size_t m_read_words = 0;
+
+	/// Checks with the poller if new words have arrived
+	/// May throw after a timeout if no new words have arrived
+	bool receive(bool throw_on_timeout);
+
+	uint64_t const& operator[](size_t position) const;
+	uint64_t& operator[](size_t position);
+
+	/// Notifies the hardware about how many quad words were read
+	void notify();
 };
-}
+
+} // namespace nhtl_extoll
