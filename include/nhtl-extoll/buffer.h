@@ -107,8 +107,8 @@ public:
 	/// This class is not copy-assignable
 	RingBuffer& operator=(RingBuffer const&) = delete;
 
-	/// Blocks and reads one quad word from the buffer
-	uint64_t get();
+	/// Blocks and reads all quad words from the buffer
+	std::vector<uint64_t> receive();
 	/// Does a hard reset without notifying the hardware
 	void reset();
 	/// Accessor for the memory region
@@ -137,8 +137,7 @@ private:
 	size_t m_read_words = 0;
 
 	/// Checks with the poller if new words have arrived
-	/// May throw after a timeout if no new words have arrived
-	bool receive(bool throw_on_timeout);
+	bool poll();
 
 	uint64_t const& operator[](size_t position) const;
 	uint64_t& operator[](size_t position);

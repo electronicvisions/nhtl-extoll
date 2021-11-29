@@ -41,9 +41,8 @@ def build(bld):
         export_includes = 'include'
     )
 
-    bld(
+    bld.shlib(
         target       = 'nhtl_extoll',
-        features     = 'cxx use',
         source       = bld.path.ant_glob('src/nhtl-extoll/*.cpp'),
         use          = ['rma2rc', 'rma2', 'nhtl_extoll_inc', 'hate_inc'],
         install_path = '${PREFIX}/lib',

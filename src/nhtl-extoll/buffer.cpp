@@ -129,7 +129,7 @@ RingBuffer::RingBuffer(RMA2_Port port, RMA2_Handle handle, NotificationPoller& p
 
 RingBuffer::~RingBuffer()
 {
-	while (receive(false))
+	while (poll())
 		;
 
 	m_read_index += m_readable_words;
@@ -162,42 +162,40 @@ RMA2_NLA RingBuffer::address(size_t offset) const
 	return nla;
 }
 
-uint64_t RingBuffer::get()
+std::vector<uint64_t> RingBuffer::receive()
 {
-	if (m_readable_words == 0) {
-		receive(true);
+	poll();
+
+	std::vector<uint64_t> words;
+	words.reserve(m_readable_words);
+
+	while (m_readable_words > 0) {
+		words.push_back(m_buffer[m_read_index++]);
+		m_read_index %= size_qw;
+		++m_read_words;
+		--m_readable_words;
+
+		if (m_read_words > 62) {
+			notify();
+		}
 	}
 
-	m_read_index %= size_qw;
-	uint64_t read = m_buffer[m_read_index++];
-	++m_read_words;
-	--m_readable_words;
+	notify();
 
-	if (m_read_words >= 10) {
-		notify();
-	}
-
-	return read;
+	return words;
 }
 
 void RingBuffer::notify()
 {
 	uint64_t payload = (trace_identifier << 48u) | m_read_words;
-	rma2_post_notification(
-	    m_port, m_handle, 0, payload, RMA2_COMPLETER_NOTIFICATION, RMA2_CMD_DEFAULT);
-	m_poller.consume_response(std::chrono::milliseconds(20));
+	rma2_post_notification(m_port, m_handle, 0, payload, RMA2_NO_NOTIFICATION, RMA2_CMD_DEFAULT);
 	m_read_words = 0;
 }
 
-bool RingBuffer::receive(bool throw_on_timeout)
+bool RingBuffer::poll()
 {
 	uint64_t packets = m_poller.consume_packets(std::chrono::milliseconds(20));
 	m_readable_words += packets;
-
-	if (packets == 0 && throw_on_timeout) {
-		throw std::runtime_error("Hicann response timed out!");
-	}
-
 	return packets != 0;
 }
 
