@@ -24,6 +24,11 @@ Connection::~Connection()
 		RMA2_Notification* notification;
 		RMA2_ERROR status = rma2_noti_probe(m_port, &notification);
 		while (status == RMA2_SUCCESS) {
+			std::cerr << "Notification type: " << rma2_noti_get_notification_type(notification)
+			          << "\n";
+			std::cerr << "Notification VPID: " << rma2_noti_get_remote_vpid(notification) << "\n";
+			std::cerr << "Notification Node ID: " << rma2_noti_get_remote_nodeid(notification)
+			          << "\n";
 			rma2_noti_free(m_port, notification);
 			++ignored_notifications;
 			status = rma2_noti_probe(m_port, &notification);
@@ -43,11 +48,12 @@ Connection::~Connection()
 
 Connection::Connection(RMA2_Nodeid node, bool rra)
 {
+	m_type = (rra ? rra_connection : RMA2_CONN_PHYSICAL);
 	RMA2_ERROR status = rma2_open(&m_port);
 	throw_on_error<ConnectionFailed>(status, "Failed to open port!");
 	m_vpid = rma2_get_vpid(m_port);
 	status =
-	    rma2_connect(m_port, node, m_vpid, (rra ? rra_connection : RMA2_CONN_DEFAULT), &m_handle);
+	    rma2_connect(m_port, node, m_vpid, (rra ? rra_connection : RMA2_CONN_PHYSICAL), &m_handle);
 	throw_on_error<ConnectionFailed>(status, "Failed to connect!");
 }
 
@@ -115,8 +121,8 @@ RMA2_VPID Endpoint::get_rma_vpid() const
 uint64_t Endpoint::rra_read(RMA2_NLA address) const
 {
 	RMA2_ERROR status = rma2_post_get_qw_direct(
-	    get_rra_port(), get_rra_handle(), buffer.address(), 8, address, RMA2_COMPLETER_NOTIFICATION,
-	    RMA2_CMD_DEFAULT);
+	    get_rra_port(), get_rra_handle(), buffer.response_address(), 8, address,
+	    RMA2_COMPLETER_NOTIFICATION, RMA2_CMD_DEFAULT);
 
 	throw_on_error<FailedToRead>(status, get_node(), address);
 
@@ -126,7 +132,7 @@ uint64_t Endpoint::rra_read(RMA2_NLA address) const
 	status = rma2_noti_free(get_rra_port(), notification);
 	throw_on_error<FailedToRead>(status, get_node(), address);
 
-	return buffer.read();
+	return buffer.read_response();
 }
 
 void Endpoint::rra_write(RMA2_NLA address, uint64_t value)
@@ -141,6 +147,14 @@ void Endpoint::rra_write(RMA2_NLA address, uint64_t value)
 	throw_on_error<FailedToWrite>(status, get_node(), address);
 	status = rma2_noti_free(get_rra_port(), notification);
 	throw_on_error<FailedToWrite>(status, get_node(), address);
+}
+
+void Endpoint::rma_send(size_t quad_words)
+{
+	RMA2_ERROR status = rma2_post_put_qw_direct(
+	    get_rma_port(), get_rma_handle(), buffer.send_address(), sizeof(uint64_t) * quad_words,
+	    trace_address, RMA2_NO_NOTIFICATION, RMA2_CMD_DEFAULT);
+	throw_on_error<FailedToWrite>(status, get_node(), trace_address);
 }
 
 } // namespace nhtl_extoll

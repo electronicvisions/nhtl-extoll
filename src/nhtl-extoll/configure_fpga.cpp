@@ -48,7 +48,7 @@ void configure_fpga(Endpoint& connection)
 	    0,
 	    connection.get_rma_vpid(),
 	    0b100,
-	    connection.buffer.address(),
+	    connection.buffer.response_address(),
 	    {hicann_ring_buffer.address(0), static_cast<uint32_t>(hicann_ring_buffer.size_bt), 0x7c0,
 	     false, 0x100, static_cast<uint32_t>(hicann_ring_buffer.size_qw / 62 - 8)},
 	    {trace_ring_buffer.address(0), static_cast<uint32_t>(trace_ring_buffer.size_bt), 0x7c0,

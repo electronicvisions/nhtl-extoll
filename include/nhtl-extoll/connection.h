@@ -17,6 +17,8 @@ private:
 	/// The virtual process id
 	RMA2_VPID m_vpid = RMA2_VPID_ANY;
 
+	int m_type = 0;
+
 public:
 	RMA2_Port get_port() const;
 	RMA2_Handle get_handle() const;
@@ -59,7 +61,10 @@ public:
 	 * Maximum RF address available. This is determined by the register file
 	 * and should be adjusted if the register file is changed.
 	 */
-	static inline uint64_t const max_address = 0x180d0;
+	constexpr static uint64_t max_address = 0x180d0;
+
+	constexpr static RMA2_NLA hicann_address = 0x2a1bull << 48;
+	constexpr static RMA2_NLA trace_address = 0x0ca5ull << 48;
 
 	RMA2_Nodeid get_node() const;
 
@@ -73,7 +78,8 @@ public:
 
 	NotificationPoller poller;
 
-	/// The buffer for all rra responses
+	/// A buffer that acts as a response buffer for RRA traffic and send buffer
+	/// for RMA traffic.
 	PhysicalBuffer buffer;
 	/// The HICANN ring buffer
 	/// Currently not used but required for successful configuration
@@ -151,6 +157,11 @@ public:
 	 *  is writable nor does it provide a way to pack the fields into a quad word.
 	 */
 	void rra_write(RMA2_NLA, uint64_t);
+
+	/**
+	 * Send data via the RMA connection.
+	 */
+	void rma_send(size_t quad_words);
 };
 
 }

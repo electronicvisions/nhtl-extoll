@@ -9,21 +9,35 @@
 namespace nhtl_extoll {
 
 /**
- *  A buffer for Remote Registerfile Access (RRA) responses. The RRA
- *  connection uses physical addresses as the registerfile only has
- *  physical addresses.
- *  FPGAs do not implement virtual addresses and would interpret them
- *  as physical addresses.
+ *  This buffer serves as a response buffer for Remote Registerfile Access (RRA)
+ *  responses and a send buffer for Remote Memory Access (RMA) traffic.
+ *  Both connections use physical addresses. The RRA connection as the registerfile
+ *  only has physical addresses and the RMA as the Address Translation Unit (ATU)
+ *  has a bug which can cause address translation to fail for PUT requests that
+ *  require data from across page borders, cf. RMA2 Specification p. 57.
+ *  In the case of the RRA connection, FPGAs do not implement virtual addresses
+ *  and would interpret them as physical addresses.
  *  However, the Tourmalet Registerfile does implement virtual addresses
  *  and would interpret them as virtual addresses instead of physical
  *  addresses, causing a translation of addresses which will fail.
- *  The size of this buffer is one page size, which has to be 4096B
+ *  The size of the response buffer is one page size, which has to be 4096B
  *  for the card. However, only 64 bit, i.e., one Quad Word, are used.
+ *  The send buffer makes up the  remaining 1023 pages.
  */
 class PhysicalBuffer
 {
 private:
-	std::array<uint64_t, 512>* m_buffer;
+	/// Page size as required by the Tourmalet-ASIC in byte
+	constexpr static size_t page_size_bt = 4096;
+	/// Size of a quad-word in bytes
+	constexpr static size_t quad_word_size_bt = sizeof(uint64_t);
+	/// Page size as required by the Tourmalet-ASIC in quad-words
+	constexpr static size_t page_size_qw = page_size_bt / quad_word_size_bt;
+	/// Combined size of the RRA response buffer and the RMA send buffer in pages
+	/// Requesting more than 1024 pages causes fatal mmap() errors that can cause
+	/// the host to become unresponsive.
+	constexpr static size_t pages = 1024;
+	std::array<uint64_t, pages * page_size_qw>* m_buffer;
 	/// Use uint64_t instead of uintptr_t as Extoll uses uint64_t(=RMA2_NLA)
 	uint64_t m_physical_address;
 
@@ -36,14 +50,26 @@ public:
 	PhysicalBuffer(PhysicalBuffer const&) = delete;
 	/// This class is not copy-assignable
 	PhysicalBuffer& operator=(PhysicalBuffer const&) = delete;
+	~PhysicalBuffer();
 
 	/// Returns the Network Logical Address (NLA) of the buffer.
 	/// Note that this uses physical addresses.
-	RMA2_NLA address() const;
-	/// Return the quad word written at the start of the buffer.
-	/// The FPGA always sends exactly one quad word as response,
-	/// therefore, we only need to access the first element.
-	uint64_t read() const;
+	RMA2_NLA response_address() const;
+	/// Returns the Network Logical Address (NLA) of the send buffer
+	/// This is offset by 1 page from the start of the PhysicalBuffer
+	RMA2_NLA send_address() const;
+	/// Returns the size of the send buffer in quad words
+	size_t send_buffer_size_qw() const;
+	/// Return the quad word written at the start of the RRA response buffer
+	uint64_t read_response() const;
+	/// Return the quad word at the given index of the send buffer
+	/// This is offset by 1 page from the start of the PhysicalBuffer
+	uint64_t read_send(size_t index) const;
+	/// Write a quad word to the given index of the send buffer
+	/// This is offset by 1 page from the start of the PhysicalBuffer
+	void write_send(size_t index, uint64_t data);
+
+	friend class RingBuffer;
 };
 
 /**
@@ -53,17 +79,20 @@ public:
 class RingBuffer
 {
 public:
-	/// Page size according to RMA2 API reference manual, i.e., the
-	/// libRMA code seems not page-size-generic
-	static const int page_size = 4096;
+	/// Page size as required by the Tourmalet-ASIC in byte
+	constexpr static size_t page_size_bt = 4096;
+	/// Size of a quad word in bytes
+	constexpr static size_t quad_word_size_bt = sizeof(uint64_t);
+	/// Page size as required by the Tourmalet-ASIC in quad-words
+	constexpr static size_t page_size_qw = page_size_bt / quad_word_size_bt;
 	/// Size of the ring buffer in bytes
 	const size_t size_bt;
 	/// Size of the ring buffer in quad words
 	const size_t size_qw;
 	/// Identifier for the hicann ring buffer
-	static const uint64_t hicann_identifier = 0x2a1b;
+	constexpr static uint64_t hicann_identifier = 0x2a1b;
 	/// Identifier for the trace ring buffer
-	static const uint64_t trace_identifier = 0x0ca5;
+	constexpr static uint64_t trace_identifier = 0x0ca5;
 
 	/// Creates a ringbuffer from an RMA network port and handle,
 	/// an associated NotificationPoller, and the buffer size in pages
