@@ -1,81 +1,59 @@
 #include <cstdint>
-#include <string>
 #include <vector>
-#include <boost/process.hpp>
 #include <gtest/gtest.h>
 
 #include "nhtl-extoll/configure_fpga.h"
 #include "nhtl-extoll/connection.h"
+#include "nhtl-extoll/get_node_ids.h"
 #include "rma2.h"
 
-std::vector<RMA2_Nodeid> get_node_ids()
+TEST(TestExtollFPGA, CheckLinks)
 {
-	using namespace boost::process;
-	std::vector<RMA2_Nodeid> nodes;
-	std::string line;
-	std::string output;
-	ipstream pipe_stream;
-
-	try {
-		child c("emp-ctrl network listnodes", std_out > pipe_stream);
-
-		while (pipe_stream && std::getline(pipe_stream, line) && !line.empty()) {
-			output += line;
+	using namespace nhtl_extoll;
+	typedef uint16_t link_id;
+	std::map<RMA2_Nodeid, link_id> link_table{{1, 1}, {2, 5}, {4, 0}, {5, 3}};
+	std::vector<RMA2_Nodeid> node_ids = get_all_node_ids();
+	for (auto i : node_ids) {
+		if (link_table.contains(i)) {
+			EXPECT_TRUE(check_is_fpga(i));
 		}
-	} catch (std::exception& e) {
-		std::cerr << e.what() << '\n';
-		std::cerr << "Ensure module extoll is loaded." << '\n';
 	}
-
-
-	std::size_t pos = output.find_first_of('[');
-
-	while (pos != std::string::npos) {
-		auto sep = output.find_first_of('|', pos);
-		if (sep == std::string::npos) {
-			return nodes;
-		}
-		RMA2_Nodeid node_id(std::stoi(output.substr(pos + 1, sep - pos - 1)));
-		nodes.push_back(node_id);
-
-		pos = output.find_first_of('[', sep);
-	}
-
-	return nodes;
 }
 
 TEST(TestExtollFPGA, CheckFPGA)
 {
-	std::vector<RMA2_Nodeid> node_ids = get_node_ids();
+	using namespace nhtl_extoll;
+	std::vector<RMA2_Nodeid> node_ids = get_fpga_node_ids();
 	// Address and content of the register file identifying FPGAs.
 	RMA2_NLA fpga_address = 0x8000;
 	uint64_t fpga_identifier = 0xcafebabe;
 	int fpga_count = 0;
 	for (auto const& node_id : node_ids) {
-		nhtl_extoll::Endpoint connection{node_id};
+		Endpoint connection{node_id};
 		if (connection.rra_read(fpga_address) == fpga_identifier) {
 			fpga_count++;
 		}
 	}
-	ASSERT_GE(fpga_count, 1);
+	ASSERT_GE(fpga_count, node_ids.size());
 }
 
 TEST(TestExtollFPGA, ConfigureFPGA)
 {
-	std::vector<RMA2_Nodeid> node_ids = get_node_ids();
+	using namespace nhtl_extoll;
+	std::vector<RMA2_Nodeid> node_ids = get_fpga_node_ids();
 	// Address and content of the register file identifying FPGAs.
 	RMA2_NLA fpga_address = 0x8000;
 	uint64_t fpga_identifier = 0xcafebabe;
 	int fpga_count = 0;
 	for (auto const& node_id : node_ids) {
-		nhtl_extoll::Endpoint connection{node_id};
+		Endpoint connection{node_id};
 		if (connection.rra_read(fpga_address) == fpga_identifier) {
 			fpga_count++;
-			nhtl_extoll::configure_fpga(connection);
+			configure_fpga(connection);
 			ASSERT_EQ(
-			    connection.rra_read<nhtl_extoll::TraceBufferStart>().data(),
+			    connection.rra_read<TraceBufferStart>().data(),
 			    connection.trace_ring_buffer.address(0));
 		}
 	}
-	ASSERT_GE(fpga_count, 1);
+	ASSERT_GE(fpga_count, node_ids.size());
 }
