@@ -81,7 +81,12 @@ Endpoint::Endpoint(RMA2_Nodeid n) :
     buffer(),
     hicann_ring_buffer(get_rma_port(), get_rma_handle(), poller, 1),
     trace_ring_buffer(get_rma_port(), get_rma_handle(), poller, 2048)
-{}
+{
+	if (!ping()) {
+		std::cerr << "FPGA with Node ID " << n << " did not respond!\n";
+		throw std::runtime_error("Connection Failed: No FPGA response!\n");
+	}
+}
 
 RMA2_Nodeid Endpoint::get_node() const
 {
@@ -116,6 +121,32 @@ RMA2_Handle Endpoint::get_rma_handle() const
 RMA2_VPID Endpoint::get_rma_vpid() const
 {
 	return m_rma.get_vpid();
+}
+
+bool Endpoint::ping() const
+{
+	using namespace std::literals::chrono_literals;
+	bool ping_successful = false;
+
+	RMA2_ERROR status = rma2_post_get_qw_direct(
+	    get_rra_port(), get_rra_handle(), buffer.response_address(), 8, 0x8000,
+	    RMA2_COMPLETER_NOTIFICATION, RMA2_CMD_DEFAULT);
+
+	RMA2_Notification* notification;
+	auto wait_period = 10us;
+	for (size_t i = 0; i < 8; i++) {
+		status = rma2_noti_probe(get_rra_port(), &notification);
+		if (status == RMA2_NO_NOTI) {
+			std::this_thread::sleep_for(wait_period);
+			wait_period *= 2;
+			continue;
+		} else {
+			rma2_noti_free(get_rra_port(), notification);
+			ping_successful = true;
+			break;
+		}
+	}
+	return ping_successful;
 }
 
 uint64_t Endpoint::rra_read(RMA2_NLA address) const

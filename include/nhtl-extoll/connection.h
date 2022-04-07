@@ -99,6 +99,10 @@ public:
 	/// This class is not copy-assignable
 	Endpoint& operator=(Endpoint const&) = delete;
 
+	/// Attempt to read the FPGA identifier at 0x8000 via RRA
+	/// Returns true if the FPGA answers within 1ms, false otherwise
+	bool ping() const;
+
 	/**
 	 *  Read the value of a register file.
 	 *

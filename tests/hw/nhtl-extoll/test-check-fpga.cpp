@@ -46,13 +46,17 @@ TEST(TestExtollFPGA, ConfigureFPGA)
 	uint64_t fpga_identifier = 0xcafebabe;
 	int fpga_count = 0;
 	for (auto const& node_id : node_ids) {
-		Endpoint connection{node_id};
-		if (connection.rra_read(fpga_address) == fpga_identifier) {
-			fpga_count++;
-			configure_fpga(connection);
-			ASSERT_EQ(
-			    connection.rra_read<TraceBufferStart>().data(),
-			    connection.trace_ring_buffer.address(0));
+		try {
+			Endpoint connection{node_id};
+			if (connection.rra_read(fpga_address) == fpga_identifier) {
+				fpga_count++;
+				configure_fpga(connection);
+				ASSERT_EQ(
+				    connection.rra_read<TraceBufferStart>().data(),
+				    connection.trace_ring_buffer.address(0));
+			}
+		} catch (const std::runtime_error& e) {
+			std::cerr << e.what();
 		}
 	}
 	ASSERT_GE(fpga_count, node_ids.size());
