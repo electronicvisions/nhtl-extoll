@@ -11,7 +11,10 @@ NotificationPoller::NotificationPoller(RMA2_Port p) :
     m_thread{&NotificationPoller::poll_notifications, this},
     m_mutex{},
     m_cv{}
-{}
+{
+	CPU_SET(sched_getcpu(), &cpu);
+	sched_setaffinity(0, sizeof(cpu_set_t), &cpu);
+}
 
 NotificationPoller::~NotificationPoller()
 {
@@ -22,6 +25,8 @@ NotificationPoller::~NotificationPoller()
 void NotificationPoller::poll_notifications()
 {
 	using namespace std::literals::chrono_literals;
+
+	sched_setaffinity(0, sizeof(cpu_set_t), &cpu);
 
 	auto wait_period = 1us;
 	constexpr std::chrono::microseconds max_wait_period = 10ms;
