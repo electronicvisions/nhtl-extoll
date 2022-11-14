@@ -60,7 +60,7 @@ void configure_fpga(Endpoint& connection, PartnerHostConfiguration config);
 void configure_fpga(Endpoint& connection);
 
 /**
- *  Read-write register file HostEndpoint at address 0x5218.
+ *  Read-write register file HostEndpoint.
  *  Configures the Fpga with data from the local node.
  *
  *  The node id, protection domain and virtual process id all refer to the
@@ -106,7 +106,7 @@ struct HostEndpoint
 	void mode(uint32_t value);
 
 	/// The hardware address of the register file on the remote Fpga
-	constexpr static RMA2_NLA rf_address = 0x5218;
+	constexpr static RMA2_NLA rf_address = 0x5298;
 	/// Indicates whether this field can be read on the software side
 	constexpr static bool readable = true;
 	/// Indicates whether this field can be written on the software side
@@ -114,7 +114,7 @@ struct HostEndpoint
 };
 
 /**
- *  Read-write register file ConfigResponse at address 0x5220.
+ *  Read-write register file ConfigResponse.
  *  Address of the Fpga config response packets.
  *
  *  This can be a physical or a logical address. For a logical address
@@ -138,7 +138,7 @@ struct ConfigResponse
 	void address(uint64_t value);
 
 	/// The hardware address of the register file on the remote Fpga
-	constexpr static RMA2_NLA rf_address = 0x5220;
+	constexpr static RMA2_NLA rf_address = 0x52a0;
 	/// Indicates whether this field can be read on the software side
 	constexpr static bool readable = true;
 	/// Indicates whether this field can be written on the software side
@@ -146,7 +146,7 @@ struct ConfigResponse
 };
 
 /**
- *  Read-write register file HicannBufferStart at address 0x5080.
+ *  Read-write register file HicannBufferStart.
  *  Address in bytes of the start of the hicann config data ringbuffer.
  *
  *  This can be a physical or a logical address. For a logical address
@@ -180,7 +180,7 @@ struct HicannBufferStart
 };
 
 /**
- *  Read-write register file HicannBufferSize at address 0x5088.
+ *  Read-write register file HicannBufferSize.
  *  The capacity of the hicann config data ringbuffer in bytes.
  *
  *  For a high-level interface use the configure_fpga method.
@@ -212,7 +212,7 @@ struct HicannBufferSize
 };
 
 /**
- *  Read-write register file HicannBufferFullThreshold at address 0x5090.
+ *  Read-write register file HicannBufferFullThreshold.
  *  The threshold that determines the full state of the hicann config data ringbuffer.
  *
  *  For a high-level interface use the configure_fpga method.
@@ -245,7 +245,7 @@ struct HicannBufferFullThreshold
 };
 
 /**
- *  Read-write register file HicannNotificationBehaviour at address 0x5230.
+ *  Read-write register file HicannNotificationBehaviour.
  *  The notification behavior of the hicann config ringbuffer.
  *
  *  Frequency is the number of packets after which the Fpga will send a payload
@@ -277,7 +277,7 @@ struct HicannNotificationBehaviour
 	void frequency(uint32_t value);
 
 	/// The hardware address of the register file on the remote Fpga
-	constexpr static RMA2_NLA rf_address = 0x5230;
+	constexpr static RMA2_NLA rf_address = 0x52b0;
 	/// Indicates whether this field can be read on the software side
 	constexpr static bool readable = true;
 	/// Indicates whether this field can be written on the software side
@@ -285,7 +285,7 @@ struct HicannNotificationBehaviour
 };
 
 /**
- *  Read-write register file HicannBufferInit at address 0x50c0.
+ *  Read-write register file HicannBufferInit.
  *  Writing a `1` will reconfigure the hicann config data ringbuffer according to
  *  the previously written config values.
  *
@@ -319,7 +319,7 @@ struct HicannBufferInit
 };
 
 /**
- *  Write-only register file HicannBufferCounterReset at address 0x50a0.
+ *  Write-only register file HicannBufferCounterReset.
  *  Writing a `1` will reset the start_address, size and threshold of TraceBufferCounter.
  *
  *  For a high-level interface use the configure_fpga method.
@@ -356,7 +356,7 @@ struct HicannBufferCounterReset
  *  removed from the FPGA and should then be removed.
  */
 
-/// Read-write register file TraceBufferStart at address 0x5000.
+/// Read-write register file TraceBufferStart.
 /// Address in bytes of the start of the trace-pulse data ringbuffer.
 ///
 /// This can be a physical or a logical address. For a logical address
@@ -385,7 +385,7 @@ struct TraceBufferStart
 	constexpr static bool writable = true;
 };
 
-/// Read-write register file TraceBufferSize at address 0x5008.
+/// Read-write register file TraceBufferSize.
 /// The capacity of the trace-pulse data ringbuffer in bytes.
 ///
 /// For a high-level interface use the configure_fpga method.
@@ -411,7 +411,7 @@ struct TraceBufferSize
 	constexpr static bool writable = true;
 };
 
-/// Read-write register file TraceBufferFullThreshold at address 0x5010.
+/// Read-write register file TraceBufferFullThreshold.
 /// The threshold that determines the full state of the trace-pulse data ringbuffer.
 ///
 /// For a high-level interface use the configure_fpga method.
@@ -437,7 +437,7 @@ struct TraceBufferFullThreshold
 	constexpr static bool writable = true;
 };
 
-/// Read-only register file TraceBufferCounter at address 0x5018.
+/// Read-only register file TraceBufferCounter.
 /// Various counters that report the number of successful initializations of the
 /// trace-pulse data ringbuffer and the number of wrap arounds of the buffer.
 ///
@@ -477,7 +477,7 @@ struct TraceBufferCounter
 	constexpr static bool writable = false;
 };
 
-/// Write-only register file TraceBufferCounterReset at address 0x5020.
+/// Write-only register file TraceBufferCounterReset.
 /// Writing a `1` will reset the start_address, size and threshold of TraceBufferCounter.
 ///
 /// For a high-level interface use the configure_fpga method.
@@ -503,7 +503,7 @@ struct TraceBufferCounterReset
 	constexpr static bool writable = true;
 };
 
-/// Read-write register file TraceBufferInit at address 0x5040.
+/// Read-write register file TraceBufferInit.
 /// Writing a `1` will reconfigure the trace-pulse data ringbuffer according to
 /// the previously written config values.
 ///
@@ -530,7 +530,7 @@ struct TraceBufferInit
 	constexpr static bool writable = true;
 };
 
-/// Read-write register file TraceNotificationBehaviour at address 0x5228.
+/// Read-write register file TraceNotificationBehaviour.
 /// The notification behavior of the trace-pulse data ringbuffer.
 ///
 /// Frequency is the number of packets after which the Fpga will send a payload
@@ -556,7 +556,7 @@ struct TraceNotificationBehaviour
 	/// Set the `frequency` field
 	void frequency(uint32_t value);
 	/// The hardware address of the register file on the remote Fpga
-	constexpr static RMA2_NLA rf_address = 0x5228;
+	constexpr static RMA2_NLA rf_address = 0x52a8;
 	/// Indicates whether this field can be read on the software side
 	constexpr static bool readable = true;
 	/// Indicates whether this field can be written on the software side
