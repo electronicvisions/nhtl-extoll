@@ -1,6 +1,7 @@
 #include "nhtl-extoll/get_node_ids.h"
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <boost/process.hpp>
 
