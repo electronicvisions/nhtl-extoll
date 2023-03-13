@@ -76,7 +76,7 @@ void configure_fpga(Endpoint& connection);
 struct HostEndpoint
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 
@@ -123,7 +123,7 @@ struct HostEndpoint
 struct ConfigResponse
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 
@@ -157,7 +157,7 @@ struct ConfigResponse
 struct HicannBufferStart
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 
@@ -188,7 +188,7 @@ struct HicannBufferStart
 struct HicannBufferSize
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 
@@ -220,7 +220,7 @@ struct HicannBufferSize
 struct HicannBufferFullThreshold
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 
@@ -256,7 +256,7 @@ struct HicannBufferFullThreshold
 struct HicannNotificationBehaviour
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 
@@ -294,7 +294,7 @@ struct HicannNotificationBehaviour
 struct HicannBufferInit
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 
@@ -327,7 +327,7 @@ struct HicannBufferInit
 struct HicannBufferCounterReset
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 
@@ -366,7 +366,7 @@ struct HicannBufferCounterReset
 struct TraceBufferStart
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 	/// Initialize all fields with zero
@@ -392,7 +392,7 @@ struct TraceBufferStart
 struct TraceBufferSize
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 	/// Initialize all fields with zero
@@ -418,7 +418,7 @@ struct TraceBufferSize
 struct TraceBufferFullThreshold
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 	/// Initialize all fields with zero
@@ -445,7 +445,7 @@ struct TraceBufferFullThreshold
 struct TraceBufferCounter
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 	/// Initialize all fields with zero
@@ -484,7 +484,7 @@ struct TraceBufferCounter
 struct TraceBufferCounterReset
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 	/// Initialize all fields with zero
@@ -511,7 +511,7 @@ struct TraceBufferCounterReset
 struct TraceBufferInit
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 	/// Initialize all fields with zero
@@ -540,7 +540,7 @@ struct TraceBufferInit
 struct TraceNotificationBehaviour
 {
 	/// The raw bits used to send and receive data to and from the hardware.
-	/// This member my be accessed directly. The concrete bit-fields are always
+	/// This member may be accessed directly. The concrete bit-fields are always
 	/// synchronized with this value.
 	uint64_t raw = 0;
 	/// Initialize all fields with zero
@@ -557,6 +557,52 @@ struct TraceNotificationBehaviour
 	void frequency(uint32_t value);
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x52a8;
+	/// Indicates whether this field can be read on the software side
+	constexpr static bool readable = true;
+	/// Indicates whether this field can be written on the software side
+	constexpr static bool writable = true;
+};
+
+/// Read-write register file info.
+/// The identifying ids of the FPGA node.
+///
+/// Guid is the gloabal unique identifyer of the network-node.
+/// Ndid is the node-id of the FPGA. This is the only writable field.
+/// Socketid is the number of the FPGA's board socket on the cube or wafer-module.
+/// Edgeid is the number of the FPGA's edge-board on the cube or wafer-module.
+/// All fields except the node-id are read-only.
+struct Info
+{
+	/// The raw bits used to send and receive data to and from the hardware.
+	/// This member may be accessed directly. The concrete bit-fields are always
+	/// synchronized with this value.
+	uint64_t raw = 0;
+	/// Initialize all fields with zero
+	Info() = default;
+	/// Initialize all fields with a specific value
+	Info(uint32_t guid_, uint16_t ndid_, uint8_t waferid_, uint8_t socketid_, uint8_t edgeid_);
+	/// Read the `guid` field
+	uint32_t guid() const;
+	/// Read the `ndid` field
+	uint16_t ndid() const;
+	/// Read the `waferid` field
+	uint8_t waferid() const;
+	/// Read the `socketid_` field
+	uint8_t socketid() const;
+	/// Read the `edgeid` field
+	uint8_t edgeid() const;
+	/// Set the `guid` field
+	void guid(uint32_t value);
+	/// Set the `ndid` field
+	void ndid(uint16_t value);
+	/// Set the `waferid` field
+	void waferid(uint8_t value);
+	/// Set the `socketid` field
+	void socketid(uint8_t value);
+	/// Set the `edgeid` field
+	void edgeid(uint8_t value);
+	/// The hardware address of the register file on the remote Fpga
+	constexpr static RMA2_NLA rf_address = 0x8008;
 	/// Indicates whether this field can be read on the software side
 	constexpr static bool readable = true;
 	/// Indicates whether this field can be written on the software side

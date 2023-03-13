@@ -133,7 +133,7 @@ public:
 	 *  @endcode
 	 */
 	template <typename RF>
-	void rra_write(RF&& rf)
+	void rra_write(RF const& rf)
 	{
 		static_assert(RF::rf_address >= 0, "register file address must be positive!");
 		static_assert(RF::rf_address <= max_address, "register file address too large!");

@@ -36,6 +36,10 @@ void configure_fpga(Endpoint& connection, PartnerHostConfiguration config)
 	connection.rra_write<HicannBufferInit>({true});
 	connection.hicann_ring_buffer.reset();
 	connection.trace_ring_buffer.reset();
+
+	Info info = connection.rra_read<Info>();
+	info.ndid(uint16_t(connection.get_node()));
+	connection.rra_write<Info>(info);
 }
 
 void configure_fpga(Endpoint& connection)
@@ -326,6 +330,67 @@ void TraceBufferCounterReset::reset(bool value)
 {
 	raw &= ~(0x1ull << 0);
 	raw |= (uint64_t(value) & 0x1) << 0;
+}
+
+
+// Info
+Info::Info(uint32_t guid_, uint16_t ndid_, uint8_t waferid_, uint8_t socketid_, uint8_t edgeid_)
+{
+	raw |= (uint64_t(guid_) & 0xff'ffff) << 0;
+	raw |= (uint64_t(ndid_) & 0xffff) << 24;
+	raw |= (uint64_t(waferid_) & 0xff) << 40;
+	raw |= (uint64_t(socketid_) & 0xf) << 48;
+	raw |= (uint64_t(edgeid_) & 0x3) << 52;
+}
+
+uint32_t Info::guid() const
+{
+	return uint32_t(raw >> 0 & 0xff'ffff);
+}
+
+void Info::guid(uint32_t value)
+{
+	raw |= (uint64_t(value) & 0xff'ffff) << 0;
+}
+
+uint16_t Info::ndid() const
+{
+	return uint16_t(raw >> 24 & 0xffff);
+}
+
+void Info::ndid(uint16_t value)
+{
+	raw |= (uint64_t(value) & 0xffff) << 24;
+}
+
+uint8_t Info::waferid() const
+{
+	return uint8_t(raw >> 40 & 0xff);
+}
+
+void Info::waferid(uint8_t value)
+{
+	raw |= (uint64_t(value) & 0xff) << 40;
+}
+
+uint8_t Info::socketid() const
+{
+	return uint8_t(raw >> 48 & 0xf);
+}
+
+void Info::socketid(uint8_t value)
+{
+	raw |= (uint64_t(value) & 0xf) << 48;
+}
+
+uint8_t Info::edgeid() const
+{
+	return uint8_t(raw >> 52 & 0x3);
+}
+
+void Info::edgeid(uint8_t value)
+{
+	raw |= (uint64_t(value) & 0x3) << 52;
 }
 
 } // namespace nhtl_extoll
