@@ -37,6 +37,8 @@ void configure_fpga(Endpoint& connection, PartnerHostConfiguration config)
 	connection.hicann_ring_buffer.reset();
 	connection.trace_ring_buffer.reset();
 
+	connection.rra_write<HicannTracePktClosure>({config.hicann_trace_pkt_closure});
+
 	Info info = connection.rra_read<Info>();
 	info.ndid(uint16_t(connection.get_node()));
 	connection.rra_write<Info>(info);
@@ -56,7 +58,8 @@ void configure_fpga(Endpoint& connection)
 	    {hicann_ring_buffer.address(0), static_cast<uint32_t>(hicann_ring_buffer.size_bt), 0x7c0,
 	     false, 0x100, static_cast<uint32_t>(hicann_ring_buffer.size_qw / 62 - 8)},
 	    {trace_ring_buffer.address(0), static_cast<uint32_t>(trace_ring_buffer.size_bt), 0x7c0,
-	     false, 0x100, static_cast<uint32_t>(trace_ring_buffer.size_qw / 62 - 8)}};
+	     false, 0x100, static_cast<uint32_t>(trace_ring_buffer.size_qw / 62 - 8)},
+	    512};
 
 	configure_fpga(connection, config);
 }
@@ -194,6 +197,22 @@ void HicannNotificationBehaviour::timeout(uint32_t value)
 void HicannNotificationBehaviour::frequency(uint32_t value)
 {
 	raw = uint64_t(value) << 32;
+}
+
+// HicannTracePktClosure
+HicannTracePktClosure::HicannTracePktClosure(uint32_t timeout_)
+{
+	raw |= uint64_t(timeout_) << 0;
+}
+
+uint32_t HicannTracePktClosure::timeout() const
+{
+	return uint32_t(raw >> 0 & 0xffffffff);
+}
+
+void HicannTracePktClosure::timeout(uint32_t value)
+{
+	raw = uint64_t(value) << 0;
 }
 
 // HicannBufferInit

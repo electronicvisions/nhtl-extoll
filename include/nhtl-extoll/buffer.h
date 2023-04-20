@@ -29,7 +29,7 @@ class PhysicalBuffer
 private:
 	/// Page size as required by the Tourmalet-ASIC in byte
 	constexpr static size_t page_size_bt = 4096;
-	/// Size of a quad-word in bytes
+	/// Size of a quad-word (QW) in bytes
 	constexpr static size_t quad_word_size_bt = sizeof(uint64_t);
 	/// Page size as required by the Tourmalet-ASIC in quad-words
 	constexpr static size_t page_size_qw = page_size_bt / quad_word_size_bt;
@@ -81,7 +81,7 @@ class RingBuffer
 public:
 	/// Page size as required by the Tourmalet-ASIC in byte
 	constexpr static size_t page_size_bt = 4096;
-	/// Size of a quad word in bytes
+	/// Size of a quad word (QW) in bytes
 	constexpr static size_t quad_word_size_bt = sizeof(uint64_t);
 	/// Page size as required by the Tourmalet-ASIC in quad-words
 	constexpr static size_t page_size_qw = page_size_bt / quad_word_size_bt;
@@ -89,6 +89,9 @@ public:
 	const size_t size_bt;
 	/// Size of the ring buffer in quad words
 	const size_t size_qw;
+	/// The maximum number of read QWs to notify together back to the FPGA.
+	/// A full packet will contain 62 QWs
+	constexpr static size_t num_words_to_notify = 62 * 512;
 	/// Identifier for the hicann ring buffer
 	constexpr static uint64_t hicann_identifier = 0x2a1b;
 	/// Identifier for the trace ring buffer

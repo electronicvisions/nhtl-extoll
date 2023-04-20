@@ -175,7 +175,7 @@ std::vector<uint64_t> RingBuffer::receive()
 		++m_read_words;
 		--m_readable_words;
 
-		if (m_read_words > 62) {
+		if (m_read_words > num_words_to_notify) {
 			notify();
 		}
 	}

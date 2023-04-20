@@ -54,6 +54,8 @@ struct PartnerHostConfiguration
 	/// The ring buffer required for successful configuration
 	/// Remove when trace ring buffer is removed from FPGA
 	Ringbuffer trace;
+
+	uint32_t hicann_trace_pkt_closure;
 };
 
 void configure_fpga(Endpoint& connection, PartnerHostConfiguration config);
@@ -278,6 +280,39 @@ struct HicannNotificationBehaviour
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x52b0;
+	/// Indicates whether this field can be read on the software side
+	constexpr static bool readable = true;
+	/// Indicates whether this field can be written on the software side
+	constexpr static bool writable = true;
+};
+
+/**
+ *  Read-write register file HicannTracePktClosure.
+ *  The number of clock-cycles to wait while no AL-WR transaction appears, until
+ *  the packet is sent. The value must not be smaller than ~20, as then the message-rate
+ *  starts to limit transmission!
+ */
+struct HicannTracePktClosure
+{
+	/// The raw bits used to send and receive data to and from the hardware.
+	/// This member may be accessed directly. The concrete bit-fields are always
+	/// synchronized with this value.
+	uint64_t raw = 0;
+
+	/// Initialize all fields with zero
+	HicannTracePktClosure() = default;
+
+	/// Initialize all fields with a specific value
+	HicannTracePktClosure(uint32_t timeout_);
+
+	/// Read the `timeout` field
+	uint32_t timeout() const;
+
+	/// Set the `timeout` field
+	void timeout(uint32_t value);
+
+	/// The hardware address of the register file on the remote Fpga
+	constexpr static RMA2_NLA rf_address = 0x52b8;
 	/// Indicates whether this field can be read on the software side
 	constexpr static bool readable = true;
 	/// Indicates whether this field can be written on the software side
