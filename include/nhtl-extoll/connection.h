@@ -1,5 +1,5 @@
 #pragma once
-
+#include "hate/visibility.h"
 #include "nhtl-extoll/buffer.h"
 #include "nhtl-extoll/notification_poller.h"
 #include "rma2.h"
@@ -20,9 +20,9 @@ private:
 	int m_type = 0;
 
 public:
-	RMA2_Port get_port() const;
-	RMA2_Handle get_handle() const;
-	RMA2_VPID get_vpid() const;
+	RMA2_Port get_port() const SYMBOL_VISIBLE;
+	RMA2_Handle get_handle() const SYMBOL_VISIBLE;
+	RMA2_VPID get_vpid() const SYMBOL_VISIBLE;
 
 	/// RMA2_Connection_Options option for RRA connection.
 	static inline RMA2_Connection_Options const rra_connection =
@@ -30,7 +30,7 @@ public:
 
 	/// Open a single connection to the remote node.
 	/// @throws ConnectionFailed if an error happens inside `librma2`
-	explicit Connection(RMA2_Nodeid, bool rra);
+	explicit Connection(RMA2_Nodeid, bool rra) SYMBOL_VISIBLE;
 	/// This class is moveable as the underlying registered memory
 	/// region is stable address-wise
 	Connection(Connection&&) = default;
@@ -39,7 +39,7 @@ public:
 	/// This class is not copy-assignable
 	Connection& operator=(Connection const&) = delete;
 	/// Closes all `librma2` resources
-	~Connection();
+	~Connection() SYMBOL_VISIBLE;
 };
 
 /**
@@ -66,15 +66,15 @@ public:
 	constexpr static RMA2_NLA hicann_address = 0x2a1bull << 48;
 	constexpr static RMA2_NLA trace_address = 0x0ca5ull << 48;
 
-	RMA2_Nodeid get_node() const;
+	RMA2_Nodeid get_node() const SYMBOL_VISIBLE;
 
-	RMA2_Port get_rra_port() const;
-	RMA2_Handle get_rra_handle() const;
-	RMA2_VPID get_rra_vpid() const;
+	RMA2_Port get_rra_port() const SYMBOL_VISIBLE;
+	RMA2_Handle get_rra_handle() const SYMBOL_VISIBLE;
+	RMA2_VPID get_rra_vpid() const SYMBOL_VISIBLE;
 
-	RMA2_Port get_rma_port() const;
-	RMA2_Handle get_rma_handle() const;
-	RMA2_VPID get_rma_vpid() const;
+	RMA2_Port get_rma_port() const SYMBOL_VISIBLE;
+	RMA2_Handle get_rma_handle() const SYMBOL_VISIBLE;
+	RMA2_VPID get_rma_vpid() const SYMBOL_VISIBLE;
 
 	NotificationPoller poller;
 
@@ -90,7 +90,7 @@ public:
 
 	/// Opens a connection to a remote node.
 	/// @throws ConnectionFailed if there is an error inside `librma2`
-	explicit Endpoint(RMA2_Nodeid);
+	explicit Endpoint(RMA2_Nodeid) SYMBOL_VISIBLE;
 	/// This class is moveable as the underlying registered memory
 	/// region is stable address-wise
 	Endpoint(Endpoint&&) = default;
@@ -101,7 +101,7 @@ public:
 
 	/// Attempt to read the FPGA identifier at 0x8000 via RRA
 	/// Returns true if the FPGA answers within 1ms, false otherwise
-	bool ping() const;
+	bool ping() const SYMBOL_VISIBLE;
 
 	/**
 	 *  Read the value of a register file.
@@ -152,7 +152,7 @@ public:
 	 * location accessed. In particular, it is possible for bitfields in
 	 * otherwise readable registers to be non readable and return garbage data.
 	 */
-	uint64_t rra_read(RMA2_NLA) const;
+	uint64_t rra_read(RMA2_NLA) const SYMBOL_VISIBLE;
 
 	/**
 	 *  A non-template version of the write method.
@@ -160,12 +160,12 @@ public:
 	 *  This method is untyped and neither checks whether the remote register file
 	 *  is writable nor does it provide a way to pack the fields into a quad word.
 	 */
-	void rra_write(RMA2_NLA, uint64_t);
+	void rra_write(RMA2_NLA, uint64_t) SYMBOL_VISIBLE;
 
 	/**
 	 * Send data via the RMA connection.
 	 */
-	void rma_send(size_t quad_words);
+	void rma_send(size_t quad_words) SYMBOL_VISIBLE;
 };
 
 }

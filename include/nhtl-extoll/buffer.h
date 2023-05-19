@@ -1,10 +1,9 @@
 #pragma once
-
-#include <cstdint>
-#include <vector>
-
+#include "hate/visibility.h"
 #include "nhtl-extoll/notification_poller.h"
 #include "rma2.h"
+#include <cstdint>
+#include <vector>
 
 namespace nhtl_extoll {
 
@@ -42,7 +41,7 @@ private:
 	uint64_t m_physical_address;
 
 public:
-	explicit PhysicalBuffer();
+	explicit PhysicalBuffer() SYMBOL_VISIBLE;
 	/// This class is moveable as the underlying registered memory
 	/// region is stable address-wise
 	PhysicalBuffer(PhysicalBuffer&&) = default;
@@ -50,24 +49,24 @@ public:
 	PhysicalBuffer(PhysicalBuffer const&) = delete;
 	/// This class is not copy-assignable
 	PhysicalBuffer& operator=(PhysicalBuffer const&) = delete;
-	~PhysicalBuffer();
+	~PhysicalBuffer() SYMBOL_VISIBLE;
 
 	/// Returns the Network Logical Address (NLA) of the buffer.
 	/// Note that this uses physical addresses.
-	RMA2_NLA response_address() const;
+	RMA2_NLA response_address() const SYMBOL_VISIBLE;
 	/// Returns the Network Logical Address (NLA) of the send buffer
 	/// This is offset by 1 page from the start of the PhysicalBuffer
-	RMA2_NLA send_address() const;
+	RMA2_NLA send_address() const SYMBOL_VISIBLE;
 	/// Returns the size of the send buffer in quad words
-	size_t send_buffer_size_qw() const;
+	size_t send_buffer_size_qw() const SYMBOL_VISIBLE;
 	/// Return the quad word written at the start of the RRA response buffer
-	uint64_t read_response() const;
+	uint64_t read_response() const SYMBOL_VISIBLE;
 	/// Return the quad word at the given index of the send buffer
 	/// This is offset by 1 page from the start of the PhysicalBuffer
-	uint64_t read_send(size_t index) const;
+	uint64_t read_send(size_t index) const SYMBOL_VISIBLE;
 	/// Write a quad word to the given index of the send buffer
 	/// This is offset by 1 page from the start of the PhysicalBuffer
-	void write_send(size_t index, uint64_t data);
+	void write_send(size_t index, uint64_t data) SYMBOL_VISIBLE;
 
 	friend class RingBuffer;
 };
@@ -99,9 +98,10 @@ public:
 
 	/// Creates a ringbuffer from an RMA network port and handle,
 	/// an associated NotificationPoller, and the buffer size in pages
-	RingBuffer(RMA2_Port port, RMA2_Handle handle, NotificationPoller& p, size_t pages);
+	RingBuffer(RMA2_Port port, RMA2_Handle handle, NotificationPoller& p, size_t pages)
+	    SYMBOL_VISIBLE;
 	/// Frees all resources and does a last sync with the remote Fpga
-	~RingBuffer();
+	~RingBuffer() SYMBOL_VISIBLE;
 	/// This class is moveable as the underlying registered memory
 	/// region is stable address-wise
 	RingBuffer(RingBuffer&&) = default;
@@ -111,13 +111,13 @@ public:
 	RingBuffer& operator=(RingBuffer const&) = delete;
 
 	/// Blocks and reads all quad words from the buffer
-	std::vector<uint64_t> receive();
+	std::vector<uint64_t> receive() SYMBOL_VISIBLE;
 	/// Does a hard reset without notifying the hardware
-	void reset();
+	void reset() SYMBOL_VISIBLE;
 	/// Accessor for the memory region
-	RMA2_Region* region() const;
+	RMA2_Region* region() const SYMBOL_VISIBLE;
 	/// The NLA of the mapped memory region with an optional offset in bytes
-	RMA2_NLA address(size_t offset) const;
+	RMA2_NLA address(size_t offset) const SYMBOL_VISIBLE;
 
 private:
 	/// The network port

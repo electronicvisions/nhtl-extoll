@@ -1,8 +1,7 @@
 #pragma once
-
-#include <stdexcept>
-
+#include "hate/visibility.h"
 #include "rma2.h"
+#include <stdexcept>
 
 namespace nhtl_extoll {
 
@@ -13,7 +12,7 @@ struct RmaError : std::runtime_error
 	using runtime_error::runtime_error;
 
 protected:
-	RmaError();
+	RmaError() SYMBOL_VISIBLE;
 };
 
 /// This exception indicates that a connection to a remote Fpga could not be established.
@@ -27,7 +26,7 @@ struct ConnectionFailed : RmaError
 struct FailedToRegisterRegion : RmaError
 {
 	/// Creates an exception
-	FailedToRegisterRegion();
+	FailedToRegisterRegion() SYMBOL_VISIBLE;
 };
 
 /// This exception indicates that a remote register file access has failed.
@@ -37,7 +36,7 @@ struct RraError : RmaError
 {
 protected:
 	/// Creates an exception from a message, a node id and a network logical address
-	RraError(std::string const& msg, RMA2_Nodeid n, RMA2_NLA a);
+	RraError(std::string const& msg, RMA2_Nodeid n, RMA2_NLA a) SYMBOL_VISIBLE;
 
 	/// The node id of the node that caused the error
 	RMA2_Nodeid node;
@@ -50,7 +49,7 @@ struct FailedToRead : RraError
 {
 	using RraError::RraError;
 	/// Creates an exception from a node id and a network logical address
-	FailedToRead(RMA2_Nodeid node, RMA2_NLA address);
+	FailedToRead(RMA2_Nodeid node, RMA2_NLA address) SYMBOL_VISIBLE;
 };
 
 /// This exception indicates that a remote register file access write command failed
@@ -58,7 +57,7 @@ struct FailedToWrite : RraError
 {
 	using RraError::RraError;
 	/// Creates an exception from a node id and a network logical address
-	FailedToWrite(RMA2_Nodeid node, RMA2_NLA address);
+	FailedToWrite(RMA2_Nodeid node, RMA2_NLA address) SYMBOL_VISIBLE;
 };
 
 /// This exception occurs when the user tries to connect to a remote node that is not an
@@ -66,7 +65,7 @@ struct FailedToWrite : RraError
 struct NodeIsNoFpga : ConnectionFailed
 {
 	/// Creates an exception from a node id and an incorrect observed driver version
-	NodeIsNoFpga(RMA2_Nodeid node, uint32_t driver);
+	NodeIsNoFpga(RMA2_Nodeid node, uint32_t driver) SYMBOL_VISIBLE;
 
 	/// The node id of the node that couldn't be connected
 	RMA2_Nodeid const node;

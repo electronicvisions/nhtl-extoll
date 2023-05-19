@@ -1,9 +1,8 @@
 #pragma once
-
-#include <cstdint>
-
+#include "hate/visibility.h"
 #include "nhtl-extoll/connection.h"
 #include "rma2.h"
+#include <cstdint>
 
 namespace nhtl_extoll {
 
@@ -58,8 +57,8 @@ struct PartnerHostConfiguration
 	uint32_t hicann_trace_pkt_closure;
 };
 
-void configure_fpga(Endpoint& connection, PartnerHostConfiguration config);
-void configure_fpga(Endpoint& connection);
+void SYMBOL_VISIBLE configure_fpga(Endpoint& connection, PartnerHostConfiguration config);
+void SYMBOL_VISIBLE configure_fpga(Endpoint& connection);
 
 /**
  *  Read-write register file HostEndpoint.
@@ -86,26 +85,27 @@ struct HostEndpoint
 	HostEndpoint() = default;
 
 	/// Initialize all fields with a specific value
-	HostEndpoint(uint32_t node_id_, uint32_t protection_domain_, uint32_t vpid_, uint32_t mode_);
+	HostEndpoint(uint32_t node_id_, uint32_t protection_domain_, uint32_t vpid_, uint32_t mode_)
+	    SYMBOL_VISIBLE;
 
 	/// Read the `node_id` field
-	uint32_t node_id() const;
+	uint32_t node_id() const SYMBOL_VISIBLE;
 	/// Read the `protection_domain` field
-	uint32_t protection_domain() const;
+	uint32_t protection_domain() const SYMBOL_VISIBLE;
 	/// Read the `vpid` field
-	uint32_t vpid() const;
+	uint32_t vpid() const SYMBOL_VISIBLE;
 	/// Read the `mode` field
-	uint32_t mode() const;
+	uint32_t mode() const SYMBOL_VISIBLE;
 
 
 	/// Set the `node_id` field
-	void node_id(uint32_t value);
+	void node_id(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `protection_domain` field
-	void protection_domain(uint32_t value);
+	void protection_domain(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `vpid` field
-	void vpid(uint32_t value);
+	void vpid(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `mode` field
-	void mode(uint32_t value);
+	void mode(uint32_t value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5298;
@@ -135,9 +135,9 @@ struct ConfigResponse
 	ConfigResponse(uint64_t value) : raw(value) {}
 
 	/// Read the single field
-	uint64_t address() const;
+	uint64_t address() const SYMBOL_VISIBLE;
 	/// Set the single field
-	void address(uint64_t value);
+	void address(uint64_t value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x52a0;
@@ -169,9 +169,9 @@ struct HicannBufferStart
 	HicannBufferStart(uint64_t value) : raw(value) {}
 
 	/// Read the single field
-	uint64_t data() const;
+	uint64_t data() const SYMBOL_VISIBLE;
 	/// Set the single field
-	void data(uint64_t value);
+	void data(uint64_t value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5080;
@@ -198,12 +198,12 @@ struct HicannBufferSize
 	HicannBufferSize() = default;
 
 	/// Initialize all fields with a specific value
-	HicannBufferSize(uint32_t data_);
+	HicannBufferSize(uint32_t data_) SYMBOL_VISIBLE;
 
 	/// Read the `data` field
-	uint32_t data() const;
+	uint32_t data() const SYMBOL_VISIBLE;
 	/// Set the `data` field
-	void data(uint32_t value);
+	void data(uint32_t value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5088;
@@ -230,13 +230,13 @@ struct HicannBufferFullThreshold
 	HicannBufferFullThreshold() = default;
 
 	/// Initialize all fields with a specific value
-	HicannBufferFullThreshold(uint32_t data_);
+	HicannBufferFullThreshold(uint32_t data_) SYMBOL_VISIBLE;
 
 	/// Read the `data` field
-	uint32_t data() const;
+	uint32_t data() const SYMBOL_VISIBLE;
 
 	/// Set the `data` field
-	void data(uint32_t value);
+	void data(uint32_t value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5090;
@@ -266,17 +266,17 @@ struct HicannNotificationBehaviour
 	HicannNotificationBehaviour() = default;
 
 	/// Initialize all fields with a specific value
-	HicannNotificationBehaviour(uint32_t timeout_, uint32_t frequency_);
+	HicannNotificationBehaviour(uint32_t timeout_, uint32_t frequency_) SYMBOL_VISIBLE;
 
 	/// Read the `timeout` field
-	uint32_t timeout() const;
+	uint32_t timeout() const SYMBOL_VISIBLE;
 	/// Read the `frequency` field
-	uint32_t frequency() const;
+	uint32_t frequency() const SYMBOL_VISIBLE;
 
 	/// Set the `timeout` field
-	void timeout(uint32_t value);
+	void timeout(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `frequency` field
-	void frequency(uint32_t value);
+	void frequency(uint32_t value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x52b0;
@@ -303,13 +303,13 @@ struct HicannTracePktClosure
 	HicannTracePktClosure() = default;
 
 	/// Initialize all fields with a specific value
-	HicannTracePktClosure(uint32_t timeout_);
+	HicannTracePktClosure(uint32_t timeout_) SYMBOL_VISIBLE;
 
 	/// Read the `timeout` field
-	uint32_t timeout() const;
+	uint32_t timeout() const SYMBOL_VISIBLE;
 
 	/// Set the `timeout` field
-	void timeout(uint32_t value);
+	void timeout(uint32_t value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x52b8;
@@ -337,13 +337,13 @@ struct HicannBufferInit
 	HicannBufferInit() = default;
 
 	/// Initialize all fields with a specific value
-	HicannBufferInit(bool start_);
+	HicannBufferInit(bool start_) SYMBOL_VISIBLE;
 
 	/// Read the `start` field
-	bool start() const;
+	bool start() const SYMBOL_VISIBLE;
 
 	/// Set the `start` field
-	void start(bool value);
+	void start(bool value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x50c0;
@@ -370,13 +370,13 @@ struct HicannBufferCounterReset
 	HicannBufferCounterReset() = default;
 
 	/// Initialize all fields with a specific value
-	HicannBufferCounterReset(bool reset_);
+	HicannBufferCounterReset(bool reset_) SYMBOL_VISIBLE;
 
 	/// Read the `reset` field
-	bool reset() const;
+	bool reset() const SYMBOL_VISIBLE;
 
 	/// Set the `reset` field
-	void reset(bool value);
+	void reset(bool value) SYMBOL_VISIBLE;
 
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x50a0;
@@ -409,9 +409,9 @@ struct TraceBufferStart
 	/// Initialize the single field with a specific value
 	TraceBufferStart(uint64_t value) : raw(value & 0xffffffffffffffff) {}
 	/// Read the single field
-	uint64_t data() const;
+	uint64_t data() const SYMBOL_VISIBLE;
 	/// Set the single field
-	void data(uint64_t value);
+	void data(uint64_t value) SYMBOL_VISIBLE;
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5000;
 	/// Indicates whether this field can be read on the software side
@@ -433,11 +433,11 @@ struct TraceBufferSize
 	/// Initialize all fields with zero
 	TraceBufferSize() = default;
 	/// Initialize all fields with a specific value
-	TraceBufferSize(uint32_t data_);
+	TraceBufferSize(uint32_t data_) SYMBOL_VISIBLE;
 	/// Read the `data` field
-	uint32_t data() const;
+	uint32_t data() const SYMBOL_VISIBLE;
 	/// Set the `data` field
-	void data(uint32_t value);
+	void data(uint32_t value) SYMBOL_VISIBLE;
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5008;
 	/// Indicates whether this field can be read on the software side
@@ -459,11 +459,11 @@ struct TraceBufferFullThreshold
 	/// Initialize all fields with zero
 	TraceBufferFullThreshold() = default;
 	/// Initialize all fields with a specific value
-	TraceBufferFullThreshold(uint32_t data_);
+	TraceBufferFullThreshold(uint32_t data_) SYMBOL_VISIBLE;
 	/// Read the `data` field
-	uint32_t data() const;
+	uint32_t data() const SYMBOL_VISIBLE;
 	/// Set the `data` field
-	void data(uint32_t value);
+	void data(uint32_t value) SYMBOL_VISIBLE;
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5010;
 	/// Indicates whether this field can be read on the software side
@@ -487,23 +487,24 @@ struct TraceBufferCounter
 	TraceBufferCounter() = default;
 	/// Initialize all fields with a specific value
 	TraceBufferCounter(
-	    uint32_t start_address_, uint32_t size_, uint32_t threshold_, uint32_t wraps_);
+	    uint32_t start_address_, uint32_t size_, uint32_t threshold_, uint32_t wraps_)
+	    SYMBOL_VISIBLE;
 	/// Read the `start_address` field
-	uint32_t start_address() const;
+	uint32_t start_address() const SYMBOL_VISIBLE;
 	/// Read the `size` field
-	uint32_t size() const;
+	uint32_t size() const SYMBOL_VISIBLE;
 	/// Read the `threshold` field
-	uint32_t threshold() const;
+	uint32_t threshold() const SYMBOL_VISIBLE;
 	/// Read the `wraps` field
-	uint32_t wraps() const;
+	uint32_t wraps() const SYMBOL_VISIBLE;
 	/// Set the `start_address` field
-	void start_address(uint32_t value);
+	void start_address(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `size` field
-	void size(uint32_t value);
+	void size(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `threshold` field
-	void threshold(uint32_t value);
+	void threshold(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `wraps` field
-	void wraps(uint32_t value);
+	void wraps(uint32_t value) SYMBOL_VISIBLE;
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5018;
 	/// Indicates whether this field can be read on the software side
@@ -525,11 +526,11 @@ struct TraceBufferCounterReset
 	/// Initialize all fields with zero
 	TraceBufferCounterReset() = default;
 	/// Initialize all fields with a specific value
-	TraceBufferCounterReset(bool reset_);
+	TraceBufferCounterReset(bool reset_) SYMBOL_VISIBLE;
 	/// Read the `reset` field
-	bool reset() const;
+	bool reset() const SYMBOL_VISIBLE;
 	/// Set the `reset` field
-	void reset(bool value);
+	void reset(bool value) SYMBOL_VISIBLE;
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5020;
 	/// Indicates whether this field can be read on the software side
@@ -552,11 +553,11 @@ struct TraceBufferInit
 	/// Initialize all fields with zero
 	TraceBufferInit() = default;
 	/// Initialize all fields with a specific value
-	TraceBufferInit(bool start_);
+	TraceBufferInit(bool start_) SYMBOL_VISIBLE;
 	/// Read the `start` field
-	bool start() const;
+	bool start() const SYMBOL_VISIBLE;
 	/// Set the `start` field
-	void start(bool value);
+	void start(bool value) SYMBOL_VISIBLE;
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x5040;
 	/// Indicates whether this field can be read on the software side
@@ -581,15 +582,15 @@ struct TraceNotificationBehaviour
 	/// Initialize all fields with zero
 	TraceNotificationBehaviour() = default;
 	/// Initialize all fields with a specific value
-	TraceNotificationBehaviour(uint32_t timeout_, uint32_t frequency_);
+	TraceNotificationBehaviour(uint32_t timeout_, uint32_t frequency_) SYMBOL_VISIBLE;
 	/// Read the `timeout` field
-	uint32_t timeout() const;
+	uint32_t timeout() const SYMBOL_VISIBLE;
 	/// Read the `frequency` field
-	uint32_t frequency() const;
+	uint32_t frequency() const SYMBOL_VISIBLE;
 	/// Set the `timeout` field
-	void timeout(uint32_t value);
+	void timeout(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `frequency` field
-	void frequency(uint32_t value);
+	void frequency(uint32_t value) SYMBOL_VISIBLE;
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x52a8;
 	/// Indicates whether this field can be read on the software side
@@ -615,27 +616,28 @@ struct Info
 	/// Initialize all fields with zero
 	Info() = default;
 	/// Initialize all fields with a specific value
-	Info(uint32_t guid_, uint16_t ndid_, uint8_t waferid_, uint8_t socketid_, uint8_t edgeid_);
+	Info(uint32_t guid_, uint16_t ndid_, uint8_t waferid_, uint8_t socketid_, uint8_t edgeid_)
+	    SYMBOL_VISIBLE;
 	/// Read the `guid` field
-	uint32_t guid() const;
+	uint32_t guid() const SYMBOL_VISIBLE;
 	/// Read the `ndid` field
-	uint16_t ndid() const;
+	uint16_t ndid() const SYMBOL_VISIBLE;
 	/// Read the `waferid` field
-	uint8_t waferid() const;
+	uint8_t waferid() const SYMBOL_VISIBLE;
 	/// Read the `socketid_` field
-	uint8_t socketid() const;
+	uint8_t socketid() const SYMBOL_VISIBLE;
 	/// Read the `edgeid` field
-	uint8_t edgeid() const;
+	uint8_t edgeid() const SYMBOL_VISIBLE;
 	/// Set the `guid` field
-	void guid(uint32_t value);
+	void guid(uint32_t value) SYMBOL_VISIBLE;
 	/// Set the `ndid` field
-	void ndid(uint16_t value);
+	void ndid(uint16_t value) SYMBOL_VISIBLE;
 	/// Set the `waferid` field
-	void waferid(uint8_t value);
+	void waferid(uint8_t value) SYMBOL_VISIBLE;
 	/// Set the `socketid` field
-	void socketid(uint8_t value);
+	void socketid(uint8_t value) SYMBOL_VISIBLE;
 	/// Set the `edgeid` field
-	void edgeid(uint8_t value);
+	void edgeid(uint8_t value) SYMBOL_VISIBLE;
 	/// The hardware address of the register file on the remote Fpga
 	constexpr static RMA2_NLA rf_address = 0x8008;
 	/// Indicates whether this field can be read on the software side

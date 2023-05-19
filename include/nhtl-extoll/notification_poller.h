@@ -1,13 +1,12 @@
 #pragma once
-
+#include "hate/visibility.h"
+#include "rma2.h"
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <sched.h>
 #include <thread>
-
-#include "rma2.h"
 
 namespace nhtl_extoll {
 
@@ -26,11 +25,11 @@ private:
 	void poll_notifications();
 
 public:
-	NotificationPoller(RMA2_Port p);
-	~NotificationPoller();
+	NotificationPoller(RMA2_Port p) SYMBOL_VISIBLE;
+	~NotificationPoller() SYMBOL_VISIBLE;
 
-	bool consume_response(std::chrono::milliseconds);
-	uint64_t consume_packets(std::chrono::milliseconds);
+	bool consume_response(std::chrono::milliseconds) SYMBOL_VISIBLE;
+	uint64_t consume_packets(std::chrono::milliseconds) SYMBOL_VISIBLE;
 
 	// Used to restrict process to single CPU to avoid notification latency issues.
 	cpu_set_t cpu;

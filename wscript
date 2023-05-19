@@ -46,6 +46,7 @@ def build(bld):
         source       = bld.path.ant_glob('src/nhtl-extoll/*.cpp'),
         use          = ['rma2rc', 'rma2', 'nhtl_extoll_inc', 'hate_inc'],
         install_path = '${PREFIX}/lib',
+        uselib       = 'NHTL_EXTOLL',
     )
 
     bld(
