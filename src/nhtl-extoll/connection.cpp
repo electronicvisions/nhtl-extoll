@@ -134,15 +134,19 @@ bool Endpoint::ping() const
 
 	RMA2_Notification* notification;
 	auto wait_period = 10us;
-	for (size_t i = 0; i < 8; i++) {
+	auto integral_wait = 0us;
+	for (size_t i = 0; i < 20; i++) {
 		status = rma2_noti_probe(get_rra_port(), &notification);
 		if (status == RMA2_NO_NOTI) {
 			std::this_thread::sleep_for(wait_period);
+			integral_wait += wait_period;
 			wait_period *= 2;
 			continue;
 		} else {
 			rma2_noti_free(get_rra_port(), notification);
 			ping_successful = true;
+			std::cout << "FPGA with Node ID " << get_node() << " responded after "
+			          << integral_wait.count() << "us." << std::endl;
 			break;
 		}
 	}
