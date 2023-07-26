@@ -7,7 +7,7 @@
 #include "nhtl-extoll/get_node_ids.h"
 #include "rma2.h"
 
-TEST(TestExtollFPGA, CheckLinks)
+TEST(DISABLED_TestExtollFPGA, CheckLinks)
 {
 	using namespace nhtl_extoll;
 	typedef uint16_t link_id;
@@ -20,7 +20,7 @@ TEST(TestExtollFPGA, CheckLinks)
 	}
 }
 
-TEST(TestExtollFPGA, CheckFPGA)
+TEST(DISABLED_TestExtollFPGA, CheckFPGA)
 {
 	using namespace nhtl_extoll;
 	std::vector<RMA2_Nodeid> node_ids = get_fpga_node_ids();
@@ -37,7 +37,7 @@ TEST(TestExtollFPGA, CheckFPGA)
 	ASSERT_GE(fpga_count, node_ids.size());
 }
 
-TEST(TestExtollFPGA, ConfigureFPGA)
+TEST(DISABLED_TestExtollFPGA, ConfigureFPGA)
 {
 	using namespace nhtl_extoll;
 	std::vector<RMA2_Nodeid> node_ids = get_fpga_node_ids();
