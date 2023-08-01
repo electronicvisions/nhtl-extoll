@@ -5,7 +5,7 @@ Map<String, Object> pipelineOptions = [
 		container: [app: "dls-core"],
 		moduleOptions: [modules: ["extoll"]],
 		notificationChannel: "#dls-software",
-		testSlurmResource: [partition: "extoll", wafer: 61, "cpus-per-task": "4", "mem": "8G"]
+		testSlurmResource: [partition: "extoll", wafer: 61, "cpus-per-task": "4", "mem": "8G", "reservation": "thommes_112"]
 ]
 
 wafDefaultPipeline(pipelineOptions)
